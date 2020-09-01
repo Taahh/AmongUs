@@ -2,7 +2,6 @@ package com.taahyt.amongus.menus;
 
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
-import com.taahyt.amongus.game.player.AUPlayer;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -14,7 +13,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 

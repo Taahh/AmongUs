@@ -1,7 +1,7 @@
 package com.taahyt.amongus.listeners;
 
 import com.taahyt.amongus.AmongUs;
-import org.bukkit.Bukkit;
+import com.taahyt.amongus.game.player.AUPlayer;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,8 +9,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class GameListener implements Listener
@@ -50,6 +50,15 @@ public class GameListener implements Listener
                 }
             }.runTaskLater(AmongUs.get(), 2);
         }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event)
+    {
+        Player player = event.getPlayer();
+        AUPlayer gamePlayer = AmongUs.get().getGame().getPlayer(player.getUniqueId());
+        AmongUs.get().getGame().getAlivePlayers().remove(gamePlayer);
+        AmongUs.get().getGame().getPlayers().remove(gamePlayer);
     }
 
 }

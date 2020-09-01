@@ -1,6 +1,5 @@
 package com.taahyt.amongus.game;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.player.AUPlayer;
@@ -18,7 +17,6 @@ import org.bukkit.Location;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.reverseOrder;
 import static java.util.stream.Collectors.toList;
 
 @Getter
@@ -28,6 +26,8 @@ public class AUGame
 
     private int maxPlayers;
     private int minPlayers;
+
+    private int maxImposters = 1;
 
     private Location cornerA;
     private Location cornerB;

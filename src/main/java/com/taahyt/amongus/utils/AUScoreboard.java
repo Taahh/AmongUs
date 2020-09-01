@@ -35,11 +35,17 @@ public class AUScoreboard
 
     public void set(int line, String value)
     {
-        if (!entries.isEmpty() && entries.get(line) != null)
+        entries.forEach(entry -> Bukkit.getLogger().info(entry));
+
+        Bukkit.getLogger().info(String.valueOf(entries.size()));
+
+        if (!entries.isEmpty() && entries.size() > line && entries.get(line) != null && !entries.get(line).isEmpty())
         {
             board.resetScores(entries.get(line));
         }
+
         entries.add(line, value);
+
         objective.getScore(value).setScore(line);
     }
 

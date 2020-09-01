@@ -105,8 +105,6 @@ public class EmergencyMeetingMenu implements Listener
 
         AUPlayer clicker = AmongUs.get().getGame().getAlivePlayer(event.getWhoClicked().getUniqueId());
 
-        if (meta.getOwningPlayer().getUniqueId().toString().equalsIgnoreCase(clicker.getUuid().toString())) return; // CHECKS IF THEY TRIED VOTING FOR THEMSELVES //
-
         if (clicker.isVoted()) return; // CHECK IF THE PERSON WHO CLICKED VOTED
 
         AmongUs.get().getGame().vote(player); //ADD A VOTE TO THE PERSON WHO WAS CLICKED

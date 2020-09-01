@@ -3,6 +3,8 @@ package com.taahyt.amongus.listeners;
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.player.AUPlayer;
 import io.netty.util.internal.ThreadLocalRandom;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Arrow;
@@ -31,6 +33,8 @@ public class LobbyListener implements Listener
 
         AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().attach(player);
         AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(0, "ROLE: ");
+        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(1, "lol");
+        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(2, "Game Starts In: ");
 
     }
 
@@ -40,6 +44,7 @@ public class LobbyListener implements Listener
         Player player = event.getPlayer();
         AUPlayer gamePlayer = AmongUs.get().getGame().getPlayer(player.getUniqueId());
         AmongUs.get().getGame().getPlayers().remove(gamePlayer);
+        player.setScoreboard(Bukkit.getServer().getScoreboardManager().getNewScoreboard());
     }
 
 }
