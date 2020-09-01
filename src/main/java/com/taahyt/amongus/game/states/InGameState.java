@@ -1,16 +1,15 @@
 package com.taahyt.amongus.game.states;
 
-
 import com.taahyt.amongus.game.AUGame;
-import lombok.Getter;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class PermState extends BukkitRunnable {
+import java.util.concurrent.ThreadLocalRandom;
 
+public class InGameState extends BukkitRunnable
+{
 
-    @Getter
     private AUGame game;
-    public PermState(AUGame game)
+    public InGameState(AUGame game)
     {
         this.game = game;
     }
@@ -18,9 +17,7 @@ public class PermState extends BukkitRunnable {
     @Override
     public void run()
     {
-        if (game.getAlivePlayers().size() == 2)
-        {
-            //switch to end state
-        }
+
     }
+
 }
