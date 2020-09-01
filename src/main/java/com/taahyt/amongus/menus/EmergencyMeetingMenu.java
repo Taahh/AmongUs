@@ -92,17 +92,25 @@ public class EmergencyMeetingMenu implements Listener
         if (!AmongUs.get().getGame().isAlive(event.getWhoClicked().getUniqueId())) return;
 
         if (event.getCurrentItem().getType() != Material.PLAYER_HEAD) return;
-        SkullMeta meta = (SkullMeta) event.getCurrentItem().getItemMeta();
-        assert meta != null;
+
         if (AmongUs.get().getGame().isWaitingOnVote()) return;
         if (!AmongUs.get().getGame().isVoting()) return;
 
-        AUPlayer player = AmongUs.get().getGame().getAlivePlayer(meta.getOwningPlayer().getUniqueId());
-        AUPlayer clicker = AmongUs.get().getGame().getAlivePlayer(event.getWhoClicked().getUniqueId());
-        if (clicker.isVoted()) return;
+        SkullMeta meta = (SkullMeta) event.getCurrentItem().getItemMeta();
 
-        AmongUs.get().getGame().vote(player);
-        clicker.setVoted(true);
+        assert meta != null;
+
+        AUPlayer player = AmongUs.get().getGame().getAlivePlayer(meta.getOwningPlayer().getUniqueId());
+
+
+        AUPlayer clicker = AmongUs.get().getGame().getAlivePlayer(event.getWhoClicked().getUniqueId());
+
+        if (meta.getOwningPlayer().getUniqueId().toString().equalsIgnoreCase(clicker.getUuid().toString())) return; // CHECKS IF THEY TRIED VOTING FOR THEMSELVES //
+
+        if (clicker.isVoted()) return; // CHECK IF THE PERSON WHO CLICKED VOTED
+
+        AmongUs.get().getGame().vote(player); //ADD A VOTE TO THE PERSON WHO WAS CLICKED
+        clicker.setVoted(true); // SET THE CLICKER TO VOTED
 
         ItemStack item = counterItem;
         ItemMeta counterMeta = item.getItemMeta();

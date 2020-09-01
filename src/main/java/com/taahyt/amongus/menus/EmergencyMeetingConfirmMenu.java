@@ -73,19 +73,22 @@ public class EmergencyMeetingConfirmMenu implements Listener
          if (event.getCurrentItem().getType() == Material.EMERALD_BLOCK)
          {
              event.getWhoClicked().closeInventory();
+
+             // ANNOUNCE THE MEETING //
+
              game.getPlayers().forEach(gamePlayer -> gamePlayer.getBukkitPlayer().sendTitle(ChatColor.RED + "EMERGENCY MEETING", "Inititated by " + event.getWhoClicked().getName(), 40, 40, 40));
              new BukkitRunnable() {
                  @Override
                  public void run() {
-                     game.setWaitingOnVote(true);
-                     game.getPlayers().forEach(gamePlayer -> AmongUs.get().getEmergencyMeetingMenu().openInventory(gamePlayer.getBukkitPlayer()));
+                     game.setWaitingOnVote(true); //SET THE GAME TO WAITING ON VOTES
+                     game.getPlayers().forEach(gamePlayer -> AmongUs.get().getEmergencyMeetingMenu().openInventory(gamePlayer.getBukkitPlayer())); //OPEN THE VOTING MENU
 
                      BukkitTask task = new BukkitRunnable() {
                          @Override
                          public void run() {
                              if (AmongUs.get().getEmergencyMeetingMenu().getCountingTime() > 0)
                              {
-                                 AmongUs.get().getEmergencyMeetingMenu().setCountingTime(AmongUs.get().getEmergencyMeetingMenu().getCountingTime() - 1);
+                                 AmongUs.get().getEmergencyMeetingMenu().setCountingTime(AmongUs.get().getEmergencyMeetingMenu().getCountingTime() - 1); //START COUNTING DOWN ON THE WAIT TIMER
                              }
 
 
@@ -94,21 +97,24 @@ public class EmergencyMeetingConfirmMenu implements Listener
                              counterMeta.setDisplayName(ChatColor.RESET + "Waiting Time: " + AmongUs.get().getEmergencyMeetingMenu().getCountingTime());
                              AmongUs.get().getEmergencyMeetingMenu().getCounterItem().setItemMeta(counterMeta);
                              AmongUs.get().getEmergencyMeetingMenu().getInventory().setItem(26, AmongUs.get().getEmergencyMeetingMenu().getCounterItem());
+
                          }
                      }.runTaskTimer(AmongUs.get(), 0, 20); // voting time task
+
+                     // AFTER WAIT TIMER IS OVER //
 
                      new BukkitRunnable() {
                          @Override
                          public void run() {
-                             task.cancel();
-                             game.setWaitingOnVote(false);
-                             game.setVoting(true);
+                             task.cancel(); //CANCEL THE TIMER TASK ABOVE THAT DECREASED THE WAITING TIME
+                             game.setWaitingOnVote(false); // STOP WAITING ON THE VOTING
+                             game.setVoting(true); // START VOTING
                              BukkitTask task = new BukkitRunnable() { //run voting task
                                  @Override
                                  public void run() {
                                      if (AmongUs.get().getEmergencyMeetingMenu().getVotingTime() > 0)
                                      {
-                                         AmongUs.get().getEmergencyMeetingMenu().setVotingTime(AmongUs.get().getEmergencyMeetingMenu().getVotingTime() - 1);
+                                         AmongUs.get().getEmergencyMeetingMenu().setVotingTime(AmongUs.get().getEmergencyMeetingMenu().getVotingTime() - 1); //DECREASE THE TIMER FOR VOTING
                                      }
 
                                      ItemMeta counterMeta = AmongUs.get().getEmergencyMeetingMenu().getCounterItem().getItemMeta();
@@ -119,45 +125,48 @@ public class EmergencyMeetingConfirmMenu implements Listener
                                      }
                                      AmongUs.get().getEmergencyMeetingMenu().getCounterItem().setItemMeta(counterMeta);
                                      AmongUs.get().getEmergencyMeetingMenu().getInventory().setItem(26, AmongUs.get().getEmergencyMeetingMenu().getCounterItem());
+
                                  }
                              }.runTaskTimer(AmongUs.get(), 0, 20);
+
+                             // AFTER VOTING TASK //
 
                              new BukkitRunnable() {
                                  @Override
                                  public void run() {
-                                     task.cancel();
-                                     game.setVoting(false);
-                                     game.getPlayers().forEach(auPlayer -> auPlayer.getBukkitPlayer().closeInventory());
+                                     task.cancel(); // CANCEL VOTING TIMER TASK THAT DECREASED THE VOTING TIME
+                                     game.setVoting(false); // SET GAME STATE VOTING TO FALSE
+                                     game.getPlayers().forEach(auPlayer -> auPlayer.getBukkitPlayer().closeInventory()); //CLOSE EVERYONE'S INVENTORY
                                      if (game.voteTie())
                                      {
-                                         Bukkit.broadcastMessage("IT WAS A TIE!");
-                                     } else {
+                                         Bukkit.broadcastMessage("IT WAS A TIE!"); // SORTED BY VOTES, IF THE TOP 2 HAD THE SAME VOTES, SAY IT WAS A TIE
+                                     } else { //OR IF IT WASN'T A TIE, ANNOUNCE THE PEOPLE AND THEIR VOTES
                                          game.getAlivePlayers().forEach(auPlayer -> {
                                              if (auPlayer.hashCode() == game.getVoted().hashCode())
                                              {
-                                                 Bukkit.broadcastMessage(ChatColor.BOLD + game.getVoted().getBukkitPlayer().getName() + " - " + game.getVotes().get(game.getVoted()));
+                                                 Bukkit.broadcastMessage(ChatColor.BOLD + game.getVoted().getBukkitPlayer().getName() + " - " + game.getVotes().get(game.getVoted())); //ANNOUNCE THE MOST VOTED
                                              } else {
-                                                 Bukkit.broadcastMessage(game.getVotes().containsKey(auPlayer) ? auPlayer.getBukkitPlayer().getName() + " - " + game.getVotes().get(auPlayer) : auPlayer.getBukkitPlayer().getName() + " - 0");
+                                                 Bukkit.broadcastMessage(game.getVotes().containsKey(auPlayer) ? auPlayer.getBukkitPlayer().getName() + " - " + game.getVotes().get(auPlayer) : auPlayer.getBukkitPlayer().getName() + " - 0"); //ANNOUNCE EVERONE ELSE
                                              }
                                          });
                                          new BukkitRunnable() {
                                              @Override
                                              public void run() {
-                                                 game.kill(game.getVoted());
-                                                 Bukkit.broadcastMessage(game.getVoted().getBukkitPlayer().getName() + (game.getVoted().isImposter() ? " was the" : " was not the") + " Imposter!");
-                                                 game.getVotes().clear();
+                                                 game.kill(game.getVoted()); // 2 SECONDS LATER, KILL THE MOST VOTED
+                                                 Bukkit.broadcastMessage(game.getVoted().getBukkitPlayer().getName() + (game.getVoted().isImposter() ? " was the" : " was not the") + " Imposter!"); // ANNOUNCE WHETHER THEY WERE AN IMPOSTER OR NOT
+                                                 game.getVotes().clear(); //CLEAR THE VOTES
                                              }
                                          }.runTaskLater(AmongUs.get(), 40);
                                      }
 
-                                     //reset values
+                                     // RESET THE TIMERS //
                                      AmongUs.get().getEmergencyMeetingMenu().setVotingTime(20);
                                      AmongUs.get().getEmergencyMeetingMenu().setCountingTime(15);
-                                     game.setEmergencyCooldown(true);
+                                     game.setEmergencyCooldown(true); // TURN ON THE COOLDOWN FOR THE EMERGENCY MEETING BUTTON
                                      new BukkitRunnable() {
                                          @Override
                                          public void run() {
-                                             game.setEmergencyCooldown(false);
+                                             game.setEmergencyCooldown(false); // 15 SECONDS LATER, TURN THE COOLDOWN OFF.
                                          }
                                      }.runTaskLater(AmongUs.get(), 15 * 20);
                                  }
