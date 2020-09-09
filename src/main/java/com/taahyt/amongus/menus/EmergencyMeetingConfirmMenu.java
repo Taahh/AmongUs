@@ -37,7 +37,7 @@ public class EmergencyMeetingConfirmMenu implements Listener
         ItemMeta confirmMeta = confirm.getItemMeta();
         assert confirmMeta != null;
         confirmMeta.setDisplayName(ChatColor.GREEN + "Confirm!");
-        confirmMeta.setLore(Arrays.asList(ChatColor.DARK_GREEN +  "Clicking this will initiate", ChatColor.DARK_GREEN + "an emergency meeeting!"));
+        confirmMeta.setLore(Arrays.asList(ChatColor.DARK_GREEN +  "Clicking this will initiate", ChatColor.DARK_GREEN + "an emergency meeting!"));
         confirm.setItemMeta(confirmMeta);
 
         ItemStack cancel = new ItemStack(Material.BARRIER);

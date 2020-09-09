@@ -33,8 +33,10 @@ public class LobbyListener implements Listener
 
         AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().attach(player);
         AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(0, "ROLE: ");
-        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(1, "lol");
-        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(2, "Game Starts In: ");
+        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(1, "");
+        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(2, "Tasks Completed: 0/5");
+        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(3, "Game Starts In: ");
+
 
     }
 

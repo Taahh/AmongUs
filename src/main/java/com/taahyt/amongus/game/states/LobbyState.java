@@ -26,7 +26,7 @@ public class LobbyState extends BukkitRunnable
 
         if (game.getPlayers().size() >= game.getMinPlayers() && secondsRemaining > 0) {
             secondsRemaining--;
-            game.getPlayers().forEach(player -> player.getScoreboard().set(2, "Game Starts In: " + secondsRemaining));
+            game.getPlayers().forEach(player -> player.getScoreboard().set(3, "Game Starts In: " + secondsRemaining));
             if (secondsRemaining < 4)
             {
                 for (AUPlayer player : game.getPlayers()) {
@@ -51,7 +51,7 @@ public class LobbyState extends BukkitRunnable
         } else if (secondsRemaining == 0 && game.getPlayers().size() >= game.getMinPlayers())
         {
             game.getPlayers().forEach(player -> player.getBukkitPlayer().sendTitle(ChatColor.YELLOW + "GO!", "", 20, 20, 20));
-            game.getPlayers().forEach(player -> player.getScoreboard().set(2, "Game Started!!"));
+            game.getPlayers().forEach(player -> player.getScoreboard().set(3, "Game Started!!"));
 
 
             HandlerList.unregisterAll(game.getLobbyListener());

@@ -2,7 +2,10 @@ package com.taahyt.amongus.listeners;
 
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.player.AUPlayer;
+import com.taahyt.amongus.utils.LocationUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,6 +34,26 @@ public class GameListener implements Listener
             return;
         }
         AmongUs.get().getEmergencyMeetingConfirmMenu().openInventory(player);
+    }
+
+    @EventHandler
+    public void onAdminSignClick(PlayerInteractEvent event) {
+        if (event.getClickedBlock() == null) return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (event.getClickedBlock().getType() != Material.OAK_SIGN) return;
+        if (!(event.getClickedBlock().getState() instanceof Sign)) return;
+
+        Player player = event.getPlayer();
+
+        if (AmongUs.get().getGame().getPlayer(player.getUniqueId()).getTasksCompleted().contains("admin_card"))
+        {
+            player.sendMessage("This task is already completed!");
+            return;
+        }
+
+        Sign sign = (Sign) event.getClickedBlock().getState();
+        if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getAdminCardSlider())) return;
+        AmongUs.get().getAdminCardSliderMenu().openInventory(player);
     }
 
     @EventHandler

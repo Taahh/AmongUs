@@ -73,7 +73,6 @@ public class AUGame
         scanner = new MapScanner();
         scanner.parseLobby(this);
         scanner.parseMap(this);
-        Bukkit.getLogger().info(String.valueOf(scanner.getEmergencyMeeting().toString()));
 
         this.lobbyListener = new LobbyListener();
         this.gameListener = new GameListener();

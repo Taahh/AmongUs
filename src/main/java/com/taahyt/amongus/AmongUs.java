@@ -2,8 +2,10 @@ package com.taahyt.amongus;
 
 import com.taahyt.amongus.command.JoinCMD;
 import com.taahyt.amongus.game.AUGame;
+import com.taahyt.amongus.menus.AnimatedMenuTest;
 import com.taahyt.amongus.menus.EmergencyMeetingConfirmMenu;
 import com.taahyt.amongus.menus.EmergencyMeetingMenu;
+import com.taahyt.amongus.menus.fixing.AdminCardSliderMenu;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,6 +21,13 @@ public class AmongUs extends JavaPlugin
     @Getter
     private EmergencyMeetingMenu emergencyMeetingMenu;
 
+    @Getter
+    private AdminCardSliderMenu adminCardSliderMenu;
+
+    @Getter
+    private AnimatedMenuTest animatedMenuTest;
+
+
     @Override
     public void onEnable()
     {
@@ -28,12 +37,16 @@ public class AmongUs extends JavaPlugin
 
         this.emergencyMeetingConfirmMenu = new EmergencyMeetingConfirmMenu();
         this.emergencyMeetingMenu = new EmergencyMeetingMenu();
+        this.adminCardSliderMenu = new AdminCardSliderMenu();
+        this.animatedMenuTest = new AnimatedMenuTest();
 
 
         getCommand("join").setExecutor(new JoinCMD());
 
         getServer().getPluginManager().registerEvents(emergencyMeetingMenu, this);
         getServer().getPluginManager().registerEvents(emergencyMeetingConfirmMenu, this);
+        getServer().getPluginManager().registerEvents(adminCardSliderMenu, this);
+        getServer().getPluginManager().registerEvents(animatedMenuTest, this);
     }
 
 

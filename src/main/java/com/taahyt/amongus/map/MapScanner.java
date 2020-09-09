@@ -22,6 +22,7 @@ public class MapScanner
 
     private List<Location> lobbySeats = Lists.newArrayList();
     private Location emergencyMeeting;
+    private Location adminCardSlider;
 
 
     public void parseLobby(AUGame game)
@@ -74,6 +75,10 @@ public class MapScanner
                                         emergencyMeeting = supposedbutton.getLocation();
                                     }
                                 }
+                            }
+                            else if (sign.getLine(1).equalsIgnoreCase("ADMIN_CARD"))
+                            {
+                                adminCardSlider = sign.getLocation();
                             }
                         }
                     }

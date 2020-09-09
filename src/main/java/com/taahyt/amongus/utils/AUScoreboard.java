@@ -35,13 +35,11 @@ public class AUScoreboard
 
     public void set(int line, String value)
     {
-        entries.forEach(entry -> Bukkit.getLogger().info(entry));
-
-        Bukkit.getLogger().info(String.valueOf(entries.size()));
-
-        if (!entries.isEmpty() && entries.size() > line && entries.get(line) != null && !entries.get(line).isEmpty())
+        if (!entries.isEmpty() && entries.size() > line)
         {
+            Bukkit.getLogger().info("reset");
             board.resetScores(entries.get(line));
+            entries.remove(line);
         }
 
         entries.add(line, value);
