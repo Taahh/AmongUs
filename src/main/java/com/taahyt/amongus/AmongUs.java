@@ -1,11 +1,14 @@
 package com.taahyt.amongus;
 
 import com.taahyt.amongus.command.JoinCMD;
+import com.taahyt.amongus.command.TasksCMD;
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.menus.AnimatedMenuTest;
 import com.taahyt.amongus.menus.EmergencyMeetingConfirmMenu;
 import com.taahyt.amongus.menus.EmergencyMeetingMenu;
 import com.taahyt.amongus.menus.fixing.AdminCardSliderMenu;
+import com.taahyt.amongus.tasks.Task;
+import com.taahyt.amongus.tasks.manager.TaskManager;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -27,6 +30,9 @@ public class AmongUs extends JavaPlugin
     @Getter
     private AnimatedMenuTest animatedMenuTest;
 
+    @Getter
+    private TaskManager taskManager;
+
 
     @Override
     public void onEnable()
@@ -35,6 +41,8 @@ public class AmongUs extends JavaPlugin
 
         game = new AUGame();
 
+        this.taskManager = new TaskManager();
+
         this.emergencyMeetingConfirmMenu = new EmergencyMeetingConfirmMenu();
         this.emergencyMeetingMenu = new EmergencyMeetingMenu();
         this.adminCardSliderMenu = new AdminCardSliderMenu();
@@ -42,6 +50,7 @@ public class AmongUs extends JavaPlugin
 
 
         getCommand("join").setExecutor(new JoinCMD());
+        getCommand("tasks").setExecutor(new TasksCMD());
 
         getServer().getPluginManager().registerEvents(emergencyMeetingMenu, this);
         getServer().getPluginManager().registerEvents(emergencyMeetingConfirmMenu, this);

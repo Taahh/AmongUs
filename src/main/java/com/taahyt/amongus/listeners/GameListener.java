@@ -36,7 +36,7 @@ public class GameListener implements Listener
         AmongUs.get().getEmergencyMeetingConfirmMenu().openInventory(player);
     }
 
-    @EventHandler
+   /* @EventHandler
     public void onAdminSignClick(PlayerInteractEvent event) {
         if (event.getClickedBlock() == null) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -54,7 +54,7 @@ public class GameListener implements Listener
         Sign sign = (Sign) event.getClickedBlock().getState();
         if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getAdminCardSlider())) return;
         AmongUs.get().getAdminCardSliderMenu().openInventory(player);
-    }
+    }*/
 
     @EventHandler
     public void onClose(InventoryCloseEvent event)

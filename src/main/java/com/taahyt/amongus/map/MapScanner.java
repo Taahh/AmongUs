@@ -3,6 +3,7 @@ package com.taahyt.amongus.map;
 import com.google.common.collect.Lists;
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
+import com.taahyt.amongus.utils.GlowAPI;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

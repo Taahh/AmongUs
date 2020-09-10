@@ -7,3 +7,5 @@ author: Taah
 commands:
   join:
     description: "Yes"
+  tasks:
+    description: "Yes"

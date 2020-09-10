@@ -3,6 +3,7 @@ package com.taahyt.amongus.game.states;
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
+import com.taahyt.amongus.utils.GlowAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.HandlerList;
@@ -62,12 +63,12 @@ public class LobbyState extends BukkitRunnable
 
             game.getAlivePlayers().get(ThreadLocalRandom.current().nextInt(game.getAlivePlayers().size())).setImposter(true);
 
-            game.getAlivePlayers().forEach(player -> player.getScoreboard().set(0, "ROLE: " + (player.isImposter() ? "IMPOSTER" : "PLAYER")));
+            game.getAlivePlayers().forEach(player -> player.getScoreboard().set(0, "ROLE: " + (player.isImposter() ? "IMPOSTER" : "CREWMATE")));
+            game.getAlivePlayers().forEach(player -> player.getTasks().addAll(AmongUs.get().getTaskManager().getTotalTasks()));
+            game.getAlivePlayers().forEach(player -> GlowAPI.addGlowToBlock(player.getBukkitPlayer(), game.getScanner().getAdminCardSlider()));
+            game.setStarted(true);
             Bukkit.getLogger().info("Switching to InGameState");
             this.cancel();
         }
-
-
-
     }
 }

@@ -135,10 +135,14 @@ public class EmergencyMeetingConfirmMenu implements Listener
                                      task.cancel(); // CANCEL VOTING TIMER TASK THAT DECREASED THE VOTING TIME
                                      game.setVoting(false); // SET GAME STATE VOTING TO FALSE
                                      game.getPlayers().forEach(auPlayer -> auPlayer.getBukkitPlayer().closeInventory()); //CLOSE EVERYONE'S INVENTORY
-                                     if (game.voteTie())
+                                     if (game.getVotes().isEmpty()) //check if nobody voted
+                                     {
+                                         Bukkit.broadcastMessage("Nobody voted.");
+                                     }
+                                     else if (game.voteTie() && !game.getVotes().isEmpty())
                                      {
                                          Bukkit.broadcastMessage("IT WAS A TIE!"); // SORTED BY VOTES, IF THE TOP 2 HAD THE SAME VOTES, SAY IT WAS A TIE
-                                     } else { //OR IF IT WASN'T A TIE, ANNOUNCE THE PEOPLE AND THEIR VOTES
+                                     } else if (!game.voteTie() && !game.getVotes().isEmpty()){ //OR IF IT WASN'T A TIE, ANNOUNCE THE PEOPLE AND THEIR VOTES
                                          game.getAlivePlayers().forEach(auPlayer -> {
                                              if (auPlayer.hashCode() == game.getVoted().hashCode())
                                              {

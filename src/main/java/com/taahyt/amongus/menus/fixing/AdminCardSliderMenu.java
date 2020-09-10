@@ -72,7 +72,7 @@ public class AdminCardSliderMenu implements Listener
         }
 
         AUPlayer player = game.getPlayer(event.getWhoClicked().getUniqueId());
-        player.getTasksCompleted().add("admin_card");
+        //player.getTasksCompleted().add("admin_card");
         player.getScoreboard().set(2, "Tasks Completed: " + player.getTasksCompleted().size() + "/5");
         event.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
         player.getBukkitPlayer().closeInventory();

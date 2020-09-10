@@ -3,8 +3,6 @@ package com.taahyt.amongus.game.states;
 import com.taahyt.amongus.game.AUGame;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 public class InGameState extends BukkitRunnable
 {
 

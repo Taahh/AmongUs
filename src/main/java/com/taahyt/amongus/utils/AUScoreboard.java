@@ -1,5 +1,6 @@
 package com.taahyt.amongus.utils;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import java.util.List;
 public class AUScoreboard
 {
 
+    @Getter
     private Scoreboard board;
     private Objective objective;
 

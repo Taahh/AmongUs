@@ -45,6 +45,7 @@ public class AUGame
 
     private MapScanner scanner;
 
+    private boolean started;
     private boolean waitingOnVote;
     private boolean voting;
 
