@@ -39,7 +39,6 @@ public class AUScoreboard
     {
         if (!entries.isEmpty() && entries.size() > line)
         {
-            Bukkit.getLogger().info("reset");
             board.resetScores(entries.get(line));
             entries.remove(line);
         }

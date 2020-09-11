@@ -3,6 +3,7 @@ package com.taahyt.amongus.game.states;
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
+import com.taahyt.amongus.tasksystem.TaskStep;
 import com.taahyt.amongus.utils.GlowAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,6 +11,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class LobbyState extends BukkitRunnable
 {
@@ -57,18 +59,32 @@ public class LobbyState extends BukkitRunnable
 
             HandlerList.unregisterAll(game.getLobbyListener());
             AmongUs.get().getServer().getPluginManager().registerEvents(game.getGameListener(), AmongUs.get());
-            new InGameState(game).runTaskTimer(AmongUs.get(), 0, 20);
+            game.setCurrentState(new InGameState(game));
+            game.getCurrentState().runTaskTimer(AmongUs.get(), 0, 20);
 
             game.getAlivePlayers().addAll(game.getPlayers());
 
             game.getAlivePlayers().get(ThreadLocalRandom.current().nextInt(game.getAlivePlayers().size())).setImposter(true);
 
             game.getAlivePlayers().forEach(player -> player.getScoreboard().set(0, "ROLE: " + (player.isImposter() ? "IMPOSTER" : "CREWMATE")));
-            game.getAlivePlayers().forEach(player -> player.getTasks().addAll(AmongUs.get().getTaskManager().getTotalTasks()));
+
+            game.getAlivePlayers().forEach(player -> {
+                player.getTaskManager().getActiveSteps().addAll(player.getTaskManager().getTasks().stream().map(task -> (TaskStep) task.getSteps().get(0)).collect(Collectors.toList()));
+
+            });
             game.getAlivePlayers().forEach(player -> GlowAPI.addGlowToBlock(player.getBukkitPlayer(), game.getScanner().getAdminCardSlider()));
             game.setStarted(true);
-            Bukkit.getLogger().info("Switching to InGameState");
             this.cancel();
         }
+    }
+
+    public int getSecondsLeft()
+    {
+        return secondsRemaining;
+    }
+
+    public void setSecondsRemaining(int seconds)
+    {
+        this.secondsRemaining = seconds;
     }
 }

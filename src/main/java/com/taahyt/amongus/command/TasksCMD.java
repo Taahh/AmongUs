@@ -2,7 +2,8 @@ package com.taahyt.amongus.command;
 
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.player.AUPlayer;
-import com.taahyt.amongus.tasks.Task;
+import com.taahyt.amongus.tasksystem.Task;
+import com.taahyt.amongus.tasksystem.TaskStep;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -17,12 +18,17 @@ public class TasksCMD implements CommandExecutor
 
         Player player = (Player) sender;
         AUPlayer gamePlayer = AmongUs.get().getGame().getPlayer(player.getUniqueId());
-        for (Task task : gamePlayer.getTasks())
+        for (Task task : gamePlayer.getTaskManager().getTasks())
         {
             String name = task.getID();
             name = name.replace("_", " ");
             name = StringUtils.capitalize(name);
-            player.sendMessage(gamePlayer.getTasksCompleted().contains(task) ? ChatColor.GREEN + name + " (" + task.getCompletedSteps().size() + "/" + task.getSteps().size() + ")" : ChatColor.RED + name + " (" + task.getCompletedSteps().size() + "/" + task.getSteps().size() + ")");
+            player.sendMessage(gamePlayer.getTaskManager().taskIsCompleted(task) ? ChatColor.GREEN + name + " (" + task.getCompletedSteps().size() + "/" + task.getSteps().size() + ")" : ChatColor.RED + name + " (" + task.getCompletedSteps().size() + "/" + task.getSteps().size() + ")");
+        }
+
+        for (TaskStep step : gamePlayer.getTaskManager().getActiveSteps())
+        {
+            player.sendMessage(ChatColor.GOLD + step.getDescription());
         }
 
         return true;

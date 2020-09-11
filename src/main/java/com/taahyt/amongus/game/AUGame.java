@@ -13,6 +13,7 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,6 +55,7 @@ public class AUGame
 
     private boolean emergencyCooldown;
 
+    private BukkitRunnable currentState;
 
     public AUGame()
     {
@@ -68,7 +70,8 @@ public class AUGame
 
 
         new PermState(this).runTaskTimer(AmongUs.get(), 0, 20);
-        new LobbyState(this).runTaskTimer(AmongUs.get(), 0, 20);
+        currentState = new LobbyState(this);
+        currentState.runTaskTimer(AmongUs.get(), 0, 20);
 
 
         scanner = new MapScanner();

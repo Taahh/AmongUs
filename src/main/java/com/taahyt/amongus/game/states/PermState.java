@@ -18,6 +18,10 @@ public class PermState extends BukkitRunnable {
     @Override
     public void run()
     {
+        game.getPlayers().forEach(player -> {
+            player.getScoreboard().set(2, "Tasks Completed: " + player.getTaskManager().getCompletedTasks().size() + "/" + player.getTaskManager().getTasks().size());
+        });
+
         if (game.getAlivePlayers().size() == 2)
         {
             //switch to end state

@@ -7,8 +7,6 @@ import com.taahyt.amongus.menus.AnimatedMenuTest;
 import com.taahyt.amongus.menus.EmergencyMeetingConfirmMenu;
 import com.taahyt.amongus.menus.EmergencyMeetingMenu;
 import com.taahyt.amongus.menus.fixing.AdminCardSliderMenu;
-import com.taahyt.amongus.tasks.Task;
-import com.taahyt.amongus.tasks.manager.TaskManager;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -30,8 +28,6 @@ public class AmongUs extends JavaPlugin
     @Getter
     private AnimatedMenuTest animatedMenuTest;
 
-    @Getter
-    private TaskManager taskManager;
 
 
     @Override
@@ -41,7 +37,6 @@ public class AmongUs extends JavaPlugin
 
         game = new AUGame();
 
-        this.taskManager = new TaskManager();
 
         this.emergencyMeetingConfirmMenu = new EmergencyMeetingConfirmMenu();
         this.emergencyMeetingMenu = new EmergencyMeetingMenu();

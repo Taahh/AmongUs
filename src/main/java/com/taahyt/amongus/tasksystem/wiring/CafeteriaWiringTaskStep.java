@@ -1,10 +1,9 @@
-package com.taahyt.amongus.tasks.wiring;
+package com.taahyt.amongus.tasksystem.wiring;
 
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
-import com.taahyt.amongus.tasks.Task;
-import com.taahyt.amongus.tasks.TaskStep;
+import com.taahyt.amongus.tasksystem.TaskStep;
 import com.taahyt.amongus.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,7 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class WiringTask1 extends TaskStep {
+public class CafeteriaWiringTaskStep extends TaskStep<WiringTask>
+{
+    private CafeteriaWiringTaskStep step;
 
     private Inventory inventory;
 
@@ -32,25 +33,26 @@ public class WiringTask1 extends TaskStep {
 
     private int wiresLeft = 3;
 
-
-    public WiringTask1()
+    public CafeteriaWiringTaskStep()
     {
-        this.inventory = Bukkit.createInventory(null, 54, "§aWiring Task PT 1");
+        super("Electrical: Fix the Wiring");
+        step = this;
+        this.inventory = Bukkit.createInventory(null, 54, "§aWiring Task PT 2");
         RANDOM_COLORS.add(new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).setDisplayName("§e§lYELLOW").build());
         RANDOM_COLORS.add(new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setDisplayName("§c§lRED").build());
         RANDOM_COLORS.add(new ItemBuilder(Material.BLUE_STAINED_GLASS_PANE).setDisplayName("§9§lBLUE").build());
     }
 
+
     @Override
-    public WiringTask getParent() {
-        return AmongUs.get().getTaskManager().getWiringTask();
+    public WiringTask getParent(AUPlayer player) {
+        return player.getTaskManager().getWiringTask();
     }
 
     @Override
     public AUGame getGame() {
         return AmongUs.get().getGame();
     }
-
 
     public ItemStack getRandomItem()
     {
@@ -82,8 +84,7 @@ public class WiringTask1 extends TaskStep {
     }
 
     @EventHandler
-    public void onInteract(PlayerInteractEvent event)
-    {
+    public void onInteract(PlayerInteractEvent event) {
         if (!getGame().isStarted()) return;
         if (event.getClickedBlock() == null) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -93,14 +94,25 @@ public class WiringTask1 extends TaskStep {
         Player player = event.getPlayer();
 
         AUPlayer gamePlayer = getGame().getPlayer(player.getUniqueId());
-        if (gamePlayer.getTasksCompleted().contains(getParent()) || gamePlayer.getTask(getParent()).getCompletedSteps().contains(this))
-        {
-            player.sendMessage("This task / step is already completed!");
+        Sign sign = (Sign) event.getClickedBlock().getState();
+        if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getWiringTask2())) return;
+        //if (gamePlayer.isImposter()) return;
+        if (gamePlayer.getTaskManager().taskIsCompleted(getParent(gamePlayer))) {
+            player.sendMessage("This task was already completed!");
             return;
         }
 
-        Sign sign = (Sign) event.getClickedBlock().getState();
-        if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getAdminCardSlider())) return;
+        if (gamePlayer.getTaskManager().stepIsCompleted(getParent(gamePlayer), this))
+        {
+            player.sendMessage("This step was already completed!");
+            return;
+        }
+
+         if (!gamePlayer.getTaskManager().isActiveStep(this))
+         {
+             player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
+             return;
+         }
         openGUI(player);
     }
 
@@ -110,7 +122,6 @@ public class WiringTask1 extends TaskStep {
         if (event.getClickedInventory() == null) return;
         if (event.getClickedInventory().hashCode() != this.inventory.hashCode())
         {
-            event.setCancelled(true);
             return;
         }
         if (event.getCurrentItem() == null) return;
@@ -167,13 +178,12 @@ public class WiringTask1 extends TaskStep {
             event.getWhoClicked().closeInventory();
             AUPlayer player = getGame().getPlayer(event.getWhoClicked().getUniqueId());
 
-            Task task = player.getTask(getParent());
-
-            task.completeStep(this);
-            event.getWhoClicked().sendMessage(ChatColor.GREEN + "Finished Wiring Task (" + task.getCompletedSteps().size() + "/" + task.getSteps().size() + ")");
-            if (task.getCompletedSteps().size() == task.getSteps().size())
+            player.getTaskManager().addToCompletedSteps(getParent(player), this);
+            player.getTaskManager().getActiveSteps().remove(step);
+            event.getWhoClicked().sendMessage(ChatColor.GREEN + "Finished Wiring Task (" + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
+            if (player.getTaskManager().stepsOfTaskAreComplete(getParent(player)))
             {
-                player.getTasksCompleted().add(task);
+                player.getTaskManager().addToCompletedTasks(getParent(player));
             }
         }
 
@@ -186,8 +196,8 @@ public class WiringTask1 extends TaskStep {
         if (event.getInventory().hashCode() != inventory.hashCode()) return;
 
         AUPlayer player = getGame().getPlayer(event.getPlayer().getUniqueId());
-        if (player.getTask(getParent()).getCompletedSteps().contains(this)) return;
-        if (player.getTasksCompleted().contains(getParent())) return;
+        if (player.getTaskManager().stepIsCompleted(getParent(player), this)) return;
+        if (player.getTaskManager().taskIsCompleted(getParent(player))) return;
         event.getPlayer().setItemOnCursor(new ItemBuilder(Material.AIR).build());
         RANDOM_COLORS.add(new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).setDisplayName("§e§lYELLOW").build());
         RANDOM_COLORS.add(new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setDisplayName("§c§lRED").build());

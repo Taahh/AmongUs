@@ -23,7 +23,11 @@ public class MapScanner
 
     private List<Location> lobbySeats = Lists.newArrayList();
     private Location emergencyMeeting;
+
     private Location adminCardSlider;
+    private Location downloadTask, uploadTask;
+    private Location wiringTask1, wiringTask2;
+    private Location o2filter;
 
 
     public void parseLobby(AUGame game)
@@ -77,9 +81,29 @@ public class MapScanner
                                     }
                                 }
                             }
-                            else if (sign.getLine(1).equalsIgnoreCase("ADMIN_CARD"))
+                            if (sign.getLine(1).equalsIgnoreCase("ADMIN_CARD"))
                             {
                                 adminCardSlider = sign.getLocation();
+                            }
+                            if (sign.getLine(1).equalsIgnoreCase("DOWNLOAD_TASK"))
+                            {
+                                downloadTask = sign.getLocation();
+                            }
+                            if (sign.getLine(1).equalsIgnoreCase("UPLOAD_TASK"))
+                            {
+                                uploadTask = sign.getLocation();
+                            }
+                            if (sign.getLine(1).equalsIgnoreCase("WIRING_1"))
+                            {
+                                wiringTask1 = sign.getLocation();
+                            }
+                            if (sign.getLine(1).equalsIgnoreCase("WIRING_2"))
+                            {
+                                wiringTask2 = sign.getLocation();
+                            }
+                            if (sign.getLine(1).equalsIgnoreCase("GARBAGE_CLEAN1"))
+                            {
+                                o2filter = sign.getLocation();
                             }
                         }
                     }

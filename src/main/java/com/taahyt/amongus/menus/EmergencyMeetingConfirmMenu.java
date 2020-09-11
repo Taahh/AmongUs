@@ -2,6 +2,7 @@ package com.taahyt.amongus.menus;
 
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
+import com.taahyt.amongus.game.player.AUPlayer;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,6 +14,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.Potion;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -75,6 +79,7 @@ public class EmergencyMeetingConfirmMenu implements Listener
              // ANNOUNCE THE MEETING //
 
              game.getPlayers().forEach(gamePlayer -> gamePlayer.getBukkitPlayer().sendTitle(ChatColor.RED + "EMERGENCY MEETING", "Inititated by " + event.getWhoClicked().getName(), 40, 40, 40));
+             game.getPlayers().forEach(gamePlayer -> gamePlayer.getBukkitPlayer().teleport(event.getWhoClicked().getLocation()));
              new BukkitRunnable() {
                  @Override
                  public void run() {
@@ -135,14 +140,18 @@ public class EmergencyMeetingConfirmMenu implements Listener
                                      task.cancel(); // CANCEL VOTING TIMER TASK THAT DECREASED THE VOTING TIME
                                      game.setVoting(false); // SET GAME STATE VOTING TO FALSE
                                      game.getPlayers().forEach(auPlayer -> auPlayer.getBukkitPlayer().closeInventory()); //CLOSE EVERYONE'S INVENTORY
+                                     game.getPlayers().stream().map(AUPlayer::getBukkitPlayer).forEach(player -> {
+                                         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, Integer.MAX_VALUE, false, false));
+                                         //player.getInventory().setHelmet(new ItemStack(Material.BLACK_CONCRETE));
+                                     });
                                      if (game.getVotes().isEmpty()) //check if nobody voted
                                      {
-                                         Bukkit.broadcastMessage("Nobody voted.");
+                                         game.getPlayers().stream().map(AUPlayer::getBukkitPlayer).forEach(player -> player.sendTitle("Nobody had voted", "", 30, 30, 10));
                                      }
                                      else if (game.voteTie() && !game.getVotes().isEmpty())
                                      {
-                                         Bukkit.broadcastMessage("IT WAS A TIE!"); // SORTED BY VOTES, IF THE TOP 2 HAD THE SAME VOTES, SAY IT WAS A TIE
-                                     } else if (!game.voteTie() && !game.getVotes().isEmpty()){ //OR IF IT WASN'T A TIE, ANNOUNCE THE PEOPLE AND THEIR VOTES
+                                         game.getPlayers().stream().map(AUPlayer::getBukkitPlayer).forEach(player -> player.sendTitle("Nobody was ejected (Tie)", "", 30, 30, 10)); // SORTED BY VOTES, IF THE TOP 2 HAD THE SAME VOTES, SAY IT WAS A TIE
+                                     } else if (!game.voteTie() && !game.getVotes().isEmpty()) { //OR IF IT WASN'T A TIE, ANNOUNCE THE PEOPLE AND THEIR VOTES
                                          game.getAlivePlayers().forEach(auPlayer -> {
                                              if (auPlayer.hashCode() == game.getVoted().hashCode())
                                              {
@@ -155,11 +164,17 @@ public class EmergencyMeetingConfirmMenu implements Listener
                                              @Override
                                              public void run() {
                                                  game.kill(game.getVoted()); // 2 SECONDS LATER, KILL THE MOST VOTED
-                                                 Bukkit.broadcastMessage(game.getVoted().getBukkitPlayer().getName() + (game.getVoted().isImposter() ? " was the" : " was not the") + " Imposter!"); // ANNOUNCE WHETHER THEY WERE AN IMPOSTER OR NOT
+                                                 game.getPlayers().stream().map(AUPlayer::getBukkitPlayer).forEach(player -> player.sendTitle(game.getVoted().getBukkitPlayer().getName() + " was", (game.getVoted().isImposter() ? ChatColor.RED + "AN " : ChatColor.RED + "NOT AN ") + ChatColor.WHITE +  "IMPOSTER", 30, 30, 10)); // ANNOUNCE WHETHER THEY WERE AN IMPOSTER OR NOT
                                                  game.getVotes().clear(); //CLEAR THE VOTES
                                              }
                                          }.runTaskLater(AmongUs.get(), 40);
                                      }
+                                     new BukkitRunnable() {
+                                         @Override
+                                         public void run() {
+                                             game.getPlayers().forEach(player -> player.getBukkitPlayer().removePotionEffect(PotionEffectType.BLINDNESS));
+                                         }
+                                     }.runTaskLater(AmongUs.get(), 40);
 
                                      // RESET THE TIMERS //
                                      AmongUs.get().getEmergencyMeetingMenu().setVotingTime(20);

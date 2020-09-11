@@ -2,6 +2,7 @@ package com.taahyt.amongus.listeners;
 
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.player.AUPlayer;
+import com.taahyt.amongus.game.states.LobbyState;
 import io.netty.util.internal.ThreadLocalRandom;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -34,7 +35,7 @@ public class LobbyListener implements Listener
         AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().attach(player);
         AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(0, "ROLE: ");
         AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(1, "");
-        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(2, "Tasks Completed: 0/5");
+        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(2, "Tasks Completed: <>");
         AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(3, "Game Starts In: ");
 
 
@@ -46,6 +47,16 @@ public class LobbyListener implements Listener
         Player player = event.getPlayer();
         AUPlayer gamePlayer = AmongUs.get().getGame().getPlayer(player.getUniqueId());
         AmongUs.get().getGame().getPlayers().remove(gamePlayer);
+
+        if (AmongUs.get().getGame().getCurrentState() instanceof LobbyState)
+        {
+            LobbyState state = (LobbyState) AmongUs.get().getGame().getCurrentState();
+            if (state.getSecondsLeft() < 10 && AmongUs.get().getGame().getPlayers().size() < AmongUs.get().getGame().getMinPlayers())
+            {
+                state.setSecondsRemaining(10);
+            }
+        }
+
         player.setScoreboard(Bukkit.getServer().getScoreboardManager().getNewScoreboard());
     }
 
