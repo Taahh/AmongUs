@@ -180,7 +180,7 @@ public class CafeteriaWiringTaskStep extends TaskStep<WiringTask>
 
             player.getTaskManager().addToCompletedSteps(getParent(player), this);
             player.getTaskManager().getActiveSteps().remove(step);
-            event.getWhoClicked().sendMessage(ChatColor.GREEN + "Finished Wiring Task (" + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
+            event.getWhoClicked().sendMessage(ChatColor.GREEN + "Fixed Wiring Part 2 - (Wiring Task - " + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
             if (player.getTaskManager().stepsOfTaskAreComplete(getParent(player)))
             {
                 player.getTaskManager().addToCompletedTasks(getParent(player));

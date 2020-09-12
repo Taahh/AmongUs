@@ -56,7 +56,7 @@ public class EmergencyMeetingMenu implements Listener
             assert meta != null;
             meta.setOwningPlayer(gamePlayers.getBukkitPlayer());
             meta.setDisplayName(ChatColor.GOLD + gamePlayers.getBukkitPlayer().getName());
-            meta.setLore(Arrays.asList(ChatColor.YELLOW + "Votes: 0"));
+            meta.setLore(Arrays.asList(ChatColor.YELLOW + "Color: " + gamePlayers.getKitColor().getName()));
             item.setItemMeta(meta);
             getInventory().setItem(i, item);
             i++;

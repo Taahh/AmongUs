@@ -3,8 +3,11 @@ package com.taahyt.amongus.tasksystem.manager;
 import com.taahyt.amongus.game.player.AUPlayer;
 import com.taahyt.amongus.tasksystem.Task;
 import com.taahyt.amongus.tasksystem.TaskStep;
+import com.taahyt.amongus.tasksystem.admin.AdminCardTask;
 import com.taahyt.amongus.tasksystem.data.DataTask;
 import com.taahyt.amongus.tasksystem.filter.OxygenFilterTask;
+import com.taahyt.amongus.tasksystem.fuel.FuelTask;
+import com.taahyt.amongus.tasksystem.medical.MedicalTask;
 import com.taahyt.amongus.tasksystem.wiring.WiringTask;
 import lombok.Data;
 import lombok.Getter;
@@ -23,6 +26,9 @@ public class TaskManager
     private WiringTask wiringTask;
     private DataTask dataTask;
     private OxygenFilterTask oxygenFilterTask;
+    private AdminCardTask adminCardTask;
+    private FuelTask fuelTask;
+    private MedicalTask medicalTask;
 
     public TaskManager(AUPlayer player)
     {
@@ -30,10 +36,16 @@ public class TaskManager
         this.wiringTask = new WiringTask();
         this.dataTask = new DataTask();
         this.oxygenFilterTask = new OxygenFilterTask();
+        this.adminCardTask = new AdminCardTask();
+        this.fuelTask = new FuelTask();
+        this.medicalTask = new MedicalTask();
 
         tasks.add(wiringTask);
         tasks.add(dataTask);
         tasks.add(oxygenFilterTask);
+        tasks.add(adminCardTask);
+        tasks.add(fuelTask);
+        tasks.add(medicalTask);
     }
 
     public boolean taskIsCompleted(Task task)

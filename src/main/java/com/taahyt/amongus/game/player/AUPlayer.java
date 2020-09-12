@@ -1,5 +1,7 @@
 package com.taahyt.amongus.game.player;
 
+import com.taahyt.amongus.customization.Kit;
+import com.taahyt.amongus.customization.KitManager;
 import com.taahyt.amongus.tasksystem.Task;
 import com.taahyt.amongus.tasksystem.TaskStep;
 import com.taahyt.amongus.tasksystem.manager.TaskManager;
@@ -31,6 +33,8 @@ public class AUPlayer
 
     private TaskManager taskManager;
 
+    private Kit kitColor;
+
     public AUPlayer(UUID uuid)
     {
         this.uuid = uuid;
@@ -38,6 +42,8 @@ public class AUPlayer
         this.kills = 0;
 
         this.taskManager = new TaskManager(this);
+
+        this.kitColor = null;
 
         this.voted = false;
         this.scoreboard = new AUScoreboard("AMONG US");

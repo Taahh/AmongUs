@@ -1,4 +1,4 @@
-package com.taahyt.amongus.tasksystem.data;
+package com.taahyt.amongus.tasksystem.fuel;
 
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
@@ -17,32 +17,30 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
-public class UploadTaskStep extends TaskStep<DataTask>
-{
+public class GasolineTankTaskStep extends TaskStep<FuelTask> {
 
-    private UploadTaskStep step;
+    private GasolineTankTaskStep step;
 
     private Inventory inventory;
 
-    private BukkitTask task;
-    private int downloadPercentage = 0;
-    private boolean started = false;
+    private Integer[] fuelSlots = new Integer[]{
+            5, 6, 14, 16, 23, 24, 25, 26, 32, 33, 34, 35, 41, 42, 43, 44, 50, 51, 52, 53
+    };
 
-    public UploadTaskStep()
-    {
-        super("Admin: Upload data from your tablet to headquarters.");
+    private double increment = 16.5;
+    private int maxValue = 99;
+    private double minValue = 0;
+
+    public GasolineTankTaskStep() {
+        super("Storage: Refill the Gasoline Tank");
         step = this;
-        this.inventory = Bukkit.createInventory(null, 27, "§aUpload Task");
+        this.inventory = Bukkit.createInventory(null, 54, "§aGasoline Fuel Task");
     }
 
-
     @Override
-    public DataTask getParent(AUPlayer player) {
-        return player.getTaskManager().getDataTask();
+    public FuelTask getParent(AUPlayer player) {
+        return player.getTaskManager().getFuelTask();
     }
 
     @Override
@@ -61,14 +59,17 @@ public class UploadTaskStep extends TaskStep<DataTask>
             }
         }
 
-        inventory.setItem(10, new ItemBuilder(Material.CHEST).setDisplayName("§6Tablet").build());
-        inventory.setItem(13, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setDisplayName("§9Upload").build());
-        inventory.setItem(16, new ItemBuilder(Material.REDSTONE_TORCH).setDisplayName("§aHeadquarters (0%)").build());
+        for (Integer slot : fuelSlots)
+        {
+            inventory.setItem(slot, new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE).setDisplayName("§rEmpty Tank").build());
+        }
+
+        inventory.setItem(29, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setDisplayName("§6Click to Fill").build());
 
         player.openInventory(inventory);
     }
 
-     @EventHandler
+    @EventHandler
     public void onInteract(PlayerInteractEvent event)
     {
         if (!getGame().isStarted()) return;
@@ -85,7 +86,7 @@ public class UploadTaskStep extends TaskStep<DataTask>
 
 
         //if (gamePlayer.isImposter()) return;
-        if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getUploadTask())) return;
+        if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getGasTank())) return;
 
         if (gamePlayer.getTaskManager().taskIsCompleted(getParent(gamePlayer))) {
             player.sendMessage("This task was already completed!");
@@ -121,50 +122,41 @@ public class UploadTaskStep extends TaskStep<DataTask>
             return;
         }
 
-
-        if (event.getSlot() == 10 || event.getSlot() == 13 || event.getSlot() == 16)
-        {
-            event.setCancelled(true);
-        }
-        ItemStack item = event.getCurrentItem();
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return;
-        if (!meta.hasDisplayName()) return;
-
         event.setCancelled(true);
-
-        if (meta.getDisplayName().equalsIgnoreCase("§9Upload"))
+        if (event.getCurrentItem().getType() == Material.RED_STAINED_GLASS_PANE)
         {
-            if (task != null) return;
-            task = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    downloadPercentage+=10;
-                    inventory.setItem(16, new ItemBuilder(Material.CHEST).setDisplayName("§aHeadquarters (" + downloadPercentage + "%)").build());
-                    if (downloadPercentage == 100)
-                    {
-                        event.getWhoClicked().closeInventory();
-                        AUPlayer player = getGame().getPlayer(event.getWhoClicked().getUniqueId());
-
-
-
-                        player.getTaskManager().addToCompletedSteps(getParent(player), step);
-                        player.getTaskManager().getActiveSteps().remove(step);
-                        event.getWhoClicked().sendMessage(ChatColor.GREEN + "Uploaded Data to HQ (Data Task - " + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
-                        if (player.getTaskManager().stepsOfTaskAreComplete(getParent(player)))
-                        {
-                            player.getTaskManager().addToCompletedTasks(getParent(player));
-                        }
-                        task = null;
-                        this.cancel();
-                    }
-                }
-            }.runTaskTimer(AmongUs.get(), 0, 20);
-            event.setCancelled(true);
+            minValue+=increment;
+            if (minValue == 16.5)
+            {
+                setSlots(inventory, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setDisplayName("§aFilled Tank").build(), 50, 51, 52, 53);
+            }
+            else if (minValue == 33)
+            {
+                setSlots(inventory, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setDisplayName("§aFilled Tank").build(), 41, 42, 43, 44);
+            }
+            else if (minValue == 49.5)
+            {
+                setSlots(inventory, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setDisplayName("§aFilled Tank").build(), 32, 33, 34, 35);
+            }
+            else if (minValue == 66)
+            {
+                setSlots(inventory, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setDisplayName("§aFilled Tank").build(), 23, 24, 25, 26);
+            }
+            else if (minValue == 82.5)
+            {
+                setSlots(inventory, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setDisplayName("§aFilled Tank").build(), 14, 16);
+            }
+            else if (minValue == maxValue)
+            {
+                setSlots(inventory, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setDisplayName("§aFilled Tank").build(), 5, 6);
+                AUPlayer player = getGame().getPlayer(event.getWhoClicked().getUniqueId());
+                player.getTaskManager().addToCompletedSteps(getParent(player), step);
+                player.getTaskManager().getActiveSteps().remove(step);
+                player.getBukkitPlayer().closeInventory();
+                player.getBukkitPlayer().setItemOnCursor(new ItemStack(Material.AIR));
+                event.getWhoClicked().sendMessage(ChatColor.GREEN + "Gas Tank Refilled (Fuel Task - " + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
+            }
         }
-
-
-
 
     }
 
@@ -177,10 +169,16 @@ public class UploadTaskStep extends TaskStep<DataTask>
         if (player.getTaskManager().stepIsCompleted(getParent(player), this)) return;
         if (player.getTaskManager().taskIsCompleted(getParent(player))) return;
         event.getPlayer().setItemOnCursor(new ItemBuilder(Material.AIR).build());
-        if (task != null) task.cancel();
-        task = null;
-        downloadPercentage = 0;
-
+        minValue = 0;
     }
+
+    private void setSlots(Inventory inv, ItemStack item, Integer... slots)
+    {
+        for (Integer i : slots)
+        {
+            inv.setItem(i, item);
+        }
+    }
+
 
 }

@@ -18,6 +18,7 @@ public class TasksCMD implements CommandExecutor
 
         Player player = (Player) sender;
         AUPlayer gamePlayer = AmongUs.get().getGame().getPlayer(player.getUniqueId());
+        player.sendMessage(ChatColor.GRAY + "-----------------------------------");
         for (Task task : gamePlayer.getTaskManager().getTasks())
         {
             String name = task.getID();
@@ -30,6 +31,7 @@ public class TasksCMD implements CommandExecutor
         {
             player.sendMessage(ChatColor.GOLD + step.getDescription());
         }
+        player.sendMessage(ChatColor.GRAY + "-----------------------------------");
 
         return true;
     }

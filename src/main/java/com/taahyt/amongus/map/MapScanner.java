@@ -28,6 +28,8 @@ public class MapScanner
     private Location downloadTask, uploadTask;
     private Location wiringTask1, wiringTask2;
     private Location o2filter;
+    private Location gasTank;
+    private Location medScan;
 
 
     public void parseLobby(AUGame game)
@@ -104,6 +106,14 @@ public class MapScanner
                             if (sign.getLine(1).equalsIgnoreCase("GARBAGE_CLEAN1"))
                             {
                                 o2filter = sign.getLocation();
+                            }
+                            if (sign.getLine(1).equalsIgnoreCase("GASOLINE_TANK"))
+                            {
+                                gasTank = sign.getLocation();
+                            }
+                            if (sign.getLine(1).equalsIgnoreCase("MED_SCAN"))
+                            {
+                                medScan = sign.getLocation();
                             }
                         }
                     }

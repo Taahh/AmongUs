@@ -1,6 +1,7 @@
 package com.taahyt.amongus.listeners;
 
 import com.taahyt.amongus.AmongUs;
+import com.taahyt.amongus.customization.Kit;
 import com.taahyt.amongus.game.player.AUPlayer;
 import com.taahyt.amongus.game.states.LobbyState;
 import io.netty.util.internal.ThreadLocalRandom;
@@ -12,8 +13,12 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 public class LobbyListener implements Listener
 {
@@ -28,16 +33,24 @@ public class LobbyListener implements Listener
 
         AmongUs.get().getGame().getPlayers().add(new AUPlayer(player.getUniqueId()));
         Location b = AmongUs.get().getGame().getScanner().getLobbySeats().get(ThreadLocalRandom.current().nextInt(AmongUs.get().getGame().getScanner().getLobbySeats().size()));
-        Arrow arrow = player.getWorld().spawn(new Location(player.getWorld(), b.getX() + 0.5, b.getY() - 0.2, b.getZ() - 0.15), Arrow.class);
+        Arrow arrow = player.getWorld().spawn(new Location(player.getWorld(), b.getX() + 0.5, b.getY() - 0.1, b.getZ() - 0.15), Arrow.class);
         arrow.addPassenger(player);
 
+        AUPlayer gamePlayer = AmongUs.get().getGame().getPlayer(player.getUniqueId());
 
-        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().attach(player);
-        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(0, "ROLE: ");
-        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(1, "");
-        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(2, "Tasks Completed: <>");
-        AmongUs.get().getGame().getPlayer(player.getUniqueId()).getScoreboard().set(3, "Game Starts In: ");
 
+        gamePlayer.getScoreboard().attach(player);
+        gamePlayer.getScoreboard().set(0, "ROLE: ");
+        gamePlayer.getScoreboard().set(1, "");
+        gamePlayer.getScoreboard().set(2, "Tasks Completed: <>");
+        gamePlayer.getScoreboard().set(3, "Game Starts In: ");
+
+        Kit kit = AmongUs.get().getKitManager().getRandomKit();
+        gamePlayer.setKitColor(kit);
+
+        player.getInventory().setChestplate(kit.getArmorContents()[0]);
+        player.getInventory().setLeggings(kit.getArmorContents()[1]);
+        player.getInventory().setBoots(kit.getArmorContents()[2]);
 
     }
 
@@ -58,6 +71,15 @@ public class LobbyListener implements Listener
         }
 
         player.setScoreboard(Bukkit.getServer().getScoreboardManager().getNewScoreboard());
+    }
+
+    @EventHandler
+    public void onArmorRemove(InventoryClickEvent event)
+    {
+        if (!(event.getClickedInventory() instanceof PlayerInventory)) return;
+
+        if (event.getSlotType() == InventoryType.SlotType.ARMOR) event.setCancelled(true);
+
     }
 
 }

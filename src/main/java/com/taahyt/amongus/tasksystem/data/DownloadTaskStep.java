@@ -67,7 +67,7 @@ public class DownloadTaskStep extends TaskStep<DataTask>
         player.openInventory(inventory);
     }
 
-     @EventHandler
+    @EventHandler
     public void onInteract(PlayerInteractEvent event)
     {
         if (!getGame().isStarted()) return;
@@ -99,6 +99,7 @@ public class DownloadTaskStep extends TaskStep<DataTask>
          if (!gamePlayer.getTaskManager().isActiveStep(step))
          {
              player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
+             event.setCancelled(true);
              return;
          }
         openGUI(player);
@@ -150,7 +151,7 @@ public class DownloadTaskStep extends TaskStep<DataTask>
                         player.getTaskManager().addToCompletedSteps(getParent(player), step);
                         player.getTaskManager().getActiveSteps().remove(step);
                         player.getTaskManager().getActiveSteps().add(getParent(player).getSteps().get(1));
-                        event.getWhoClicked().sendMessage(ChatColor.GREEN + "Finished Data Task (" + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
+                        event.getWhoClicked().sendMessage(ChatColor.GREEN + "Downloaded Data from Network (Data Task - " + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
                         if (player.getTaskManager().stepsOfTaskAreComplete(getParent(player)))
                         {
                             player.getTaskManager().addToCompletedTasks(getParent(player));

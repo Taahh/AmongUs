@@ -72,7 +72,7 @@ public class LobbyState extends BukkitRunnable
                 player.getTaskManager().getActiveSteps().addAll(player.getTaskManager().getTasks().stream().map(task -> (TaskStep) task.getSteps().get(0)).collect(Collectors.toList()));
 
             });
-            game.getAlivePlayers().forEach(player -> GlowAPI.addGlowToBlock(player.getBukkitPlayer(), game.getScanner().getAdminCardSlider()));
+            //game.getAlivePlayers().forEach(player -> GlowAPI.addGlowToBlock(player.getBukkitPlayer(), game.getScanner().getAdminCardSlider()));
             game.setStarted(true);
             this.cancel();
         }
