@@ -1,7 +1,7 @@
 package com.taahyt.amongus.customization.kits;
 
 import com.taahyt.amongus.customization.Kit;
-import com.taahyt.amongus.utils.ItemBuilder;
+import com.taahyt.amongus.utils.item.ItemBuilder;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;

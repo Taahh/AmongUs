@@ -1,4 +1,4 @@
-package com.taahyt.amongus.utils;
+package com.taahyt.amongus.utils.scoreboard;
 
 import lombok.Getter;
 import org.bukkit.Bukkit;

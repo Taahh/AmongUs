@@ -17,10 +17,9 @@ public class FuelTask extends Task<FuelTask>
     {
         gasolineTankTaskStep = new GasolineTankTaskStep();
         steps.add(gasolineTankTaskStep);
-        for (TaskStep step : getSteps())
-        {
-            AmongUs.get().getServer().getPluginManager().registerEvents(step, AmongUs.get());
-        }
+        getSteps().forEach(step -> {
+             AmongUs.get().getServer().getPluginManager().registerEvents(step, AmongUs.get());
+        });
     }
 
     @Override

@@ -19,10 +19,9 @@ public class OxygenFilterTask extends Task<OxygenFilterTask>
         oxygenFilterTaskStep = new OxygenFilterTaskStep();
         steps.add(oxygenFilterTaskStep);
 
-        for (TaskStep step : getSteps())
-        {
-            AmongUs.get().getServer().getPluginManager().registerEvents(step, AmongUs.get());
-        }
+        getSteps().forEach(step -> {
+             AmongUs.get().getServer().getPluginManager().registerEvents(step, AmongUs.get());
+        });
     }
 
     @Override

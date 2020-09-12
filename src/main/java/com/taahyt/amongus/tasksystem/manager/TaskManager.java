@@ -73,7 +73,7 @@ public class TaskManager
         return task.getCompletedSteps().size() == task.getSteps().size();
     }
 
-    public boolean isActiveStep(TaskStep step)
+    public boolean activeStep(TaskStep step)
     {
         return getActiveSteps().contains(step);
     }

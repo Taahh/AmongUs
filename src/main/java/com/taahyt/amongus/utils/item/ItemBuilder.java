@@ -1,8 +1,6 @@
-package com.taahyt.amongus.utils;
+package com.taahyt.amongus.utils.item;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

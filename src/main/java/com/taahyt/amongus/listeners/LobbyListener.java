@@ -6,18 +6,17 @@ import com.taahyt.amongus.game.player.AUPlayer;
 import com.taahyt.amongus.game.states.LobbyState;
 import io.netty.util.internal.ThreadLocalRandom;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 public class LobbyListener implements Listener
@@ -30,6 +29,9 @@ public class LobbyListener implements Listener
         player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(player.getHealthScale());
         player.setFoodLevel(20);
+        player.getInventory().clear(); //for debug purposes
+
+
 
         AmongUs.get().getGame().getPlayers().add(new AUPlayer(player.getUniqueId()));
         Location b = AmongUs.get().getGame().getScanner().getLobbySeats().get(ThreadLocalRandom.current().nextInt(AmongUs.get().getGame().getScanner().getLobbySeats().size()));
@@ -60,6 +62,7 @@ public class LobbyListener implements Listener
         Player player = event.getPlayer();
         AUPlayer gamePlayer = AmongUs.get().getGame().getPlayer(player.getUniqueId());
         AmongUs.get().getGame().getPlayers().remove(gamePlayer);
+        AmongUs.get().getKitManager().getKits().add(gamePlayer.getKitColor()); //add back the kit to the pool
 
         if (AmongUs.get().getGame().getCurrentState() instanceof LobbyState)
         {
@@ -79,7 +82,12 @@ public class LobbyListener implements Listener
         if (!(event.getClickedInventory() instanceof PlayerInventory)) return;
 
         if (event.getSlotType() == InventoryType.SlotType.ARMOR) event.setCancelled(true);
+    }
 
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event)
+    {
+        event.setCancelled(true);
     }
 
 }

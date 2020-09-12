@@ -65,8 +65,8 @@ public class AUGame
         this.lobbyA = new Location(Bukkit.getWorld("world"), 126.29, 78.00, -8.46);
         this.lobbyB = new Location(Bukkit.getWorld("world"), 110.70, 71.00, -25.42);
 
-        this.gameA = new Location(Bukkit.getWorld("world"), 110.54, 78.00, 7.40);
-        this.gameB = new Location(Bukkit.getWorld("world"), 126.30, 72.00, -8.30);
+        this.gameA = new Location(Bukkit.getWorld("world"), 60, 199, -24);
+        this.gameB = new Location(Bukkit.getWorld("world"), 110, 164, 23);
 
 
         new PermState(this).runTaskTimer(AmongUs.get(), 0, 20);
@@ -189,8 +189,6 @@ public class AUGame
 
     public void kill(AUPlayer player)
     {
-        player.getBukkitPlayer().setHealth(0);
-        player.getBukkitPlayer().spigot().respawn();
         player.getBukkitPlayer().setGameMode(GameMode.SPECTATOR);
         getAlivePlayers().remove(player);
     }

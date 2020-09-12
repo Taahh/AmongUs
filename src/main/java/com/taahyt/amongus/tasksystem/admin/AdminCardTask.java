@@ -17,10 +17,9 @@ public class AdminCardTask extends Task<AdminCardTask>
     {
         adminCardSliderTaskStep = new AdminCardSliderTaskStep();
         steps.add(adminCardSliderTaskStep);
-        for (TaskStep step : getSteps())
-        {
-            AmongUs.get().getServer().getPluginManager().registerEvents(step, AmongUs.get());
-        }
+        getSteps().forEach(step -> {
+             AmongUs.get().getServer().getPluginManager().registerEvents(step, AmongUs.get());
+        });
     }
 
     @Override

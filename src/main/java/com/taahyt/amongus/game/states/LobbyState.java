@@ -5,9 +5,12 @@ import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
 import com.taahyt.amongus.tasksystem.TaskStep;
 import com.taahyt.amongus.utils.GlowAPI;
+import com.taahyt.amongus.utils.item.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -66,12 +69,19 @@ public class LobbyState extends BukkitRunnable
 
             game.getAlivePlayers().get(ThreadLocalRandom.current().nextInt(game.getAlivePlayers().size())).setImposter(true);
 
+            game.getAlivePlayers().stream().filter(AUPlayer::isImposter).forEach(p -> p.getBukkitPlayer().getInventory().setItem(EquipmentSlot.HAND, new ItemBuilder(Material.DIAMOND_SWORD).setDisplayName("§4Murder Weapon").build()));
+
             game.getAlivePlayers().forEach(player -> player.getScoreboard().set(0, "ROLE: " + (player.isImposter() ? "IMPOSTER" : "CREWMATE")));
 
             game.getAlivePlayers().forEach(player -> {
                 player.getTaskManager().getActiveSteps().addAll(player.getTaskManager().getTasks().stream().map(task -> (TaskStep) task.getSteps().get(0)).collect(Collectors.toList()));
 
             });
+
+            game.getAlivePlayers().forEach(player -> {
+                player.getBukkitPlayer().teleport(game.getScanner().getEmergencyMeeting());
+            });
+
             //game.getAlivePlayers().forEach(player -> GlowAPI.addGlowToBlock(player.getBukkitPlayer(), game.getScanner().getAdminCardSlider()));
             game.setStarted(true);
             this.cancel();

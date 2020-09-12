@@ -19,10 +19,9 @@ public class MedicalTask extends Task<MedicalTask>
         medScanTaskStep = new MedScanTaskStep();
         steps.add(medScanTaskStep);
 
-        for (TaskStep step : getSteps())
-        {
-            AmongUs.get().getServer().getPluginManager().registerEvents(step, AmongUs.get());
-        }
+        getSteps().forEach(step -> {
+             AmongUs.get().getServer().getPluginManager().registerEvents(step, AmongUs.get());
+        });
     }
 
     @Override

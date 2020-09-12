@@ -4,7 +4,7 @@ import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
 import com.taahyt.amongus.tasksystem.TaskStep;
-import com.taahyt.amongus.utils.ItemBuilder;
+import com.taahyt.amongus.utils.item.ItemBuilder;
 import org.bukkit.*;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -25,6 +26,8 @@ public class MedScanTaskStep extends TaskStep<MedicalTask> {
     private BukkitTask task;
 
     private CompletableFuture<BukkitRunnable> futureTask;
+
+    private Player scanPlayer;
 
     public MedScanTaskStep() {
         super("Med Bay: Scan yourself at the Med Bay");
@@ -43,10 +46,11 @@ public class MedScanTaskStep extends TaskStep<MedicalTask> {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) return;
         if (!getGame().isStarted()) return;
         if (event.getClickedBlock() == null) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (event.getClickedBlock().getType() != Material.OAK_SIGN) return;
+        if (event.getClickedBlock().getType() != Material.OAK_SIGN && event.getClickedBlock().getType() != Material.OAK_WALL_SIGN) return;
         if (!(event.getClickedBlock().getState() instanceof Sign)) return;
 
 
@@ -56,8 +60,9 @@ public class MedScanTaskStep extends TaskStep<MedicalTask> {
         Sign sign = (Sign) event.getClickedBlock().getState();
 
 
-        //if (gamePlayer.isImposter()) return;
         if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getMedScan())) return;
+
+        //if (gamePlayer.isImposter()) return;
 
         if (gamePlayer.getTaskManager().taskIsCompleted(getParent(gamePlayer))) {
             player.sendMessage("This task was already completed!");
@@ -68,14 +73,16 @@ public class MedScanTaskStep extends TaskStep<MedicalTask> {
             return;
         }
 
-        if (!gamePlayer.getTaskManager().isActiveStep(step)) {
-            player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
-            return;
-        }
+        if (!gamePlayer.getTaskManager().getActiveSteps().contains(step))
+         {
+             player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
+             return;
+         }
 
         if (task != null) return;
         if (futureTask != null) return;
 
+        scanPlayer = player;
         futureTask = startScan(player).whenComplete((task, ex) -> {
             Bukkit.getScheduler().cancelTask(this.task.getTaskId());
 
@@ -99,17 +106,23 @@ public class MedScanTaskStep extends TaskStep<MedicalTask> {
 
     @EventHandler
     public void onClose(PlayerMoveEvent event) {
-        AUPlayer player = getGame().getPlayer(event.getPlayer().getUniqueId());
+        if (scanPlayer == null) return;
+        if (event.getFrom().getWorld() == event.getTo().getWorld()
+                && event.getFrom().getBlockX() == event.getTo().getBlockX()
+                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()
+                && event.getFrom().getBlockY() == event.getTo().getBlockY())
+            return;
+        AUPlayer player = getGame().getPlayer(scanPlayer.getUniqueId());
         if (player.getTaskManager().stepIsCompleted(getParent(player), this)) return;
         if (player.getTaskManager().taskIsCompleted(getParent(player))) return;
-        event.getPlayer().setItemOnCursor(new ItemBuilder(Material.AIR).build());
+        scanPlayer.setItemOnCursor(new ItemBuilder(Material.AIR).build());
         if (task != null) {
             Bukkit.getScheduler().cancelTask(task.getTaskId());
             task = null;
         }
         if (futureTask != null)
         {
-            event.getPlayer().sendMessage(ChatColor.RED + "Med Scan cancelled!");
+            scanPlayer.sendMessage(ChatColor.RED + "Med Scan was Cancelled!");
             futureTask.cancel(true);
             futureTask = null;
         }

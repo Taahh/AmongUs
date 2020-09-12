@@ -6,7 +6,7 @@ import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
 import com.taahyt.amongus.tasksystem.TaskStep;
 import com.taahyt.amongus.utils.Animations;
-import com.taahyt.amongus.utils.ItemBuilder;
+import com.taahyt.amongus.utils.item.ItemBuilder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,15 +18,16 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class OxygenFilterTaskStep extends TaskStep<OxygenFilterTask>
 {
@@ -45,8 +46,9 @@ public class OxygenFilterTaskStep extends TaskStep<OxygenFilterTask>
             new ItemBuilder(Material.ACACIA_LEAVES).setDisplayName("§aLeaves 5").build());
 
     private BukkitTask task, task1, task2, task3, task4;
+    private CompletableFuture<String> animOne, animTwo, animThree, animFour, animFive;
 
-    private boolean leafOne;
+    private boolean leafOne, leafTwo, leafThree, leafFour, leafFive;
 
     public OxygenFilterTaskStep() {
         super("O2: Empty Leaves from the O2 Filter");
@@ -90,10 +92,11 @@ public class OxygenFilterTaskStep extends TaskStep<OxygenFilterTask>
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) return;
         if (!getGame().isStarted()) return;
         if (event.getClickedBlock() == null) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (event.getClickedBlock().getType() != Material.OAK_SIGN) return;
+        if (event.getClickedBlock().getType() != Material.OAK_SIGN && event.getClickedBlock().getType() != Material.OAK_WALL_SIGN) return;
         if (!(event.getClickedBlock().getState() instanceof Sign)) return;
 
 
@@ -103,8 +106,9 @@ public class OxygenFilterTaskStep extends TaskStep<OxygenFilterTask>
         Sign sign = (Sign) event.getClickedBlock().getState();
 
 
-        //if (gamePlayer.isImposter()) return;
         if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getO2filter())) return;
+
+        //if (gamePlayer.isImposter()) return;
 
         if (gamePlayer.getTaskManager().taskIsCompleted(getParent(gamePlayer))) {
             player.sendMessage("This task was already completed!");
@@ -115,10 +119,11 @@ public class OxygenFilterTaskStep extends TaskStep<OxygenFilterTask>
             return;
         }
 
-        if (!gamePlayer.getTaskManager().isActiveStep(step)) {
-            player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
-            return;
-        }
+        if (!gamePlayer.getTaskManager().getActiveSteps().contains(step))
+         {
+             player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
+             return;
+         }
         openGUI(player);
     }
 
@@ -143,45 +148,56 @@ public class OxygenFilterTaskStep extends TaskStep<OxygenFilterTask>
 
         if (item.getType() == Material.ACACIA_LEAVES)
         {
-            for (ItemStack itemz : items.keySet())
+            if (item.getItemMeta().getDisplayName().equalsIgnoreCase(leaves.get(0).getItemMeta().getDisplayName()))
             {
-                Bukkit.getLogger().info(String.valueOf(itemz.hashCode()));
-            }
-
-            if (item.hashCode() == leaves.get(0).hashCode())
-            {
-                Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(0).getItemMeta().getDisplayName()), 9, inventory, task, false).whenComplete((task, ex) -> {
-                    Bukkit.getLogger().info("leaves.get(0) gone");
+                leafOne = true;
+                animOne = Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(0).getItemMeta().getDisplayName()), 9, inventory, task, false).whenComplete((task, ex) -> {
                     inventory.setItem(9, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+                    animOne = null;
                 });
 
             }
-            else if (item.hashCode() == leaves.get(1).hashCode())
+            else if (item.getItemMeta().getDisplayName().equalsIgnoreCase(leaves.get(1).getItemMeta().getDisplayName()))
             {
-                Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(1).getItemMeta().getDisplayName()), 9, inventory, task1, false).whenComplete((task, ex) -> {
-                    Bukkit.getLogger().info("leaves.get(1) gone");
+                if (!leafOne) return;
+                leafTwo = true;
+                animTwo = Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(1).getItemMeta().getDisplayName()), 9, inventory, task1, false).whenComplete((task, ex) -> {
                     inventory.setItem(9, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+                    animTwo = null;
                 });
             }
-            else if (item.hashCode() == leaves.get(2).hashCode())
+            else if (item.getItemMeta().getDisplayName().equalsIgnoreCase(leaves.get(2).getItemMeta().getDisplayName()))
             {
-                Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(2).getItemMeta().getDisplayName()), 18, inventory, task2, false).whenComplete((task, ex) -> {
-                    Bukkit.getLogger().info("leaves.get(2) gone");
+                if (!leafTwo) return;
+                leafThree = true;
+                animThree = Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(2).getItemMeta().getDisplayName()), 18, inventory, task2, false).whenComplete((task, ex) -> {
                     inventory.setItem(18, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+                    animThree = null;
                 });
             }
-            else if (item.hashCode() == leaves.get(3).hashCode())
+            else if (item.getItemMeta().getDisplayName().equalsIgnoreCase(leaves.get(3).getItemMeta().getDisplayName()))
             {
-                Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(3).getItemMeta().getDisplayName()), 27, inventory, task3, false).whenComplete((task, ex) -> {
-                    Bukkit.getLogger().info("leaves.get(3) gone");
+                if (!leafThree) return;
+                leafFour = true;
+                animFour = Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(3).getItemMeta().getDisplayName()), 27, inventory, task3, false).whenComplete((task, ex) -> {
                     inventory.setItem(27, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+                    animFour = null;
                 });
             }
-            else if (item.hashCode() == leaves.get(4).hashCode())
+            else if (item.getItemMeta().getDisplayName().equalsIgnoreCase(leaves.get(4).getItemMeta().getDisplayName()))
             {
-                Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(4).getItemMeta().getDisplayName()), 27, inventory, task4, false).whenComplete((task, ex) -> {
-                    Bukkit.getLogger().info("leaves.get(4) gone");
+                if (!leafFour) return;
+                leafFive = true;
+                animFive = Animations.animate(items, Animations.getFromDisplayName(items, leaves.get(4).getItemMeta().getDisplayName()), 27, inventory, task4, false).whenComplete((task, ex) -> {
                     inventory.setItem(27, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+                    AUPlayer player = getGame().getPlayer(event.getWhoClicked().getUniqueId());
+                    player.getTaskManager().addToCompletedSteps(getParent(player), step);
+                    player.getTaskManager().addToCompletedTasks(getParent(player));
+                    player.getTaskManager().getActiveSteps().remove(step);
+                    player.getBukkitPlayer().closeInventory();
+                    player.getBukkitPlayer().setItemOnCursor(new ItemStack(Material.AIR));
+                    event.getWhoClicked().sendMessage(ChatColor.GREEN + "O2 Filter Cleaned (Filter Task - " + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
+                    animFive = null;
                 });
             }
         }
@@ -208,6 +224,13 @@ public class OxygenFilterTaskStep extends TaskStep<OxygenFilterTask>
         if (task2 != null) task2.cancel();
         if (task3 != null) task3.cancel();
         if (task4 != null) task4.cancel();
+
+        if (animOne != null) animOne.cancel(true);
+        if (animTwo != null) animTwo.cancel(true);
+        if (animThree != null) animThree.cancel(true);
+        if (animFour != null) animFour.cancel(true);
+        if (animFive != null) animFive.cancel(true);
+
     }
 
     public ItemStack getItemStack()

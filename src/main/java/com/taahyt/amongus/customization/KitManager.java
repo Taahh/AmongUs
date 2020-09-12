@@ -28,4 +28,7 @@ public class KitManager
         return kit;
     }
 
+    public List<Kit> getKits() {
+        return kits;
+    }
 }

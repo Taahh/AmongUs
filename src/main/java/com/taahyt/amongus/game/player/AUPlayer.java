@@ -1,18 +1,14 @@
 package com.taahyt.amongus.game.player;
 
 import com.taahyt.amongus.customization.Kit;
-import com.taahyt.amongus.customization.KitManager;
-import com.taahyt.amongus.tasksystem.Task;
-import com.taahyt.amongus.tasksystem.TaskStep;
 import com.taahyt.amongus.tasksystem.manager.TaskManager;
-import com.taahyt.amongus.utils.AUScoreboard;
+import com.taahyt.amongus.utils.scoreboard.AUScoreboard;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.List;
 import java.util.UUID;
 
 @Getter

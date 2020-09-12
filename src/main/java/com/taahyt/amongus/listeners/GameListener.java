@@ -2,22 +2,38 @@ package com.taahyt.amongus.listeners;
 
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.player.AUPlayer;
+import com.taahyt.amongus.utils.NMSUtils;
+import com.taahyt.amongus.utils.item.ItemBuilder;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class GameListener implements Listener
 {
+
+    private Map<UUID, Integer> killCooldown = new HashMap<>();
 
     @EventHandler
     public void onButtonClick(PlayerInteractEvent event)
@@ -70,6 +86,94 @@ public class GameListener implements Listener
 
         if (event.getSlotType() == InventoryType.SlotType.ARMOR) event.setCancelled(true);
 
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event)
+    {
+        if (!(event.getEntity() instanceof Player)) return;
+        if (!(event.getDamager() instanceof Player)) return;
+
+        AUPlayer damager = AmongUs.get().getGame().getPlayer(event.getDamager().getUniqueId());
+        AUPlayer entity = AmongUs.get().getGame().getPlayer(event.getEntity().getUniqueId());
+
+        if (!damager.isImposter())
+        {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (!AmongUs.get().getGame().getAlivePlayers().contains(damager))
+        {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (damager.getBukkitPlayer().getGameMode() == GameMode.SPECTATOR) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (killCooldown.containsKey(damager.getUuid())) {
+            event.setCancelled(true);
+            return;
+
+        }
+        event.setCancelled(true);
+        Location location = entity.getBukkitPlayer().getLocation();
+
+        AmongUs.get().getGame().kill(entity);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                NMSUtils.spawnCorpse(entity.getBukkitPlayer(), location, (Collection<Player>) Bukkit.getOnlinePlayers());
+            }
+        }.runTaskLater(AmongUs.get(), 9);
+
+        killCooldown.put(damager.getUuid(), 15);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!killCooldown.containsKey(damager.getUuid()))
+                {
+                    this.cancel();
+                    return;
+                }
+
+                killCooldown.put(damager.getUuid(), killCooldown.get(damager.getUuid()) - 1);
+                damager.getBukkitPlayer().getInventory().setItem(EquipmentSlot.HAND, new ItemBuilder(Material.DIAMOND_SWORD).setDisplayName("§4Murder Weapon (" + killCooldown.get(damager.getUuid()) + ")").build());
+
+                if (killCooldown.get(damager.getUuid()) == 0)
+                {
+                    damager.getBukkitPlayer().getInventory().setItem(EquipmentSlot.HAND, new ItemBuilder(Material.DIAMOND_SWORD).setDisplayName("§4Murder Weapon").build());
+                    this.cancel();
+                }
+
+            }
+        }.runTaskTimer(AmongUs.get(), 0, 20);
+
+    }
+
+
+    @EventHandler
+    public void onAnimation(PlayerAnimationEvent event)
+    {
+        if (event.getAnimationType() == PlayerAnimationType.ARM_SWING)
+        {
+            Player player = event.getPlayer();
+            AUPlayer gamePlayer = AmongUs.get().getGame().getPlayer(player.getUniqueId());
+            if (gamePlayer.isImposter() && killCooldown.containsKey(gamePlayer.getUuid()))
+            {
+                event.setCancelled(true);
+                return;
+            }
+            else if (!gamePlayer.isImposter())
+            {
+                event.setCancelled(true);
+                return;
+            }
+        }
     }
 
 }

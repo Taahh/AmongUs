@@ -4,7 +4,7 @@ import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
 import com.taahyt.amongus.tasksystem.TaskStep;
-import com.taahyt.amongus.utils.ItemBuilder;
+import com.taahyt.amongus.utils.item.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -15,6 +15,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -72,10 +73,11 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
     @EventHandler
     public void onInteract(PlayerInteractEvent event)
     {
+        if (event.getHand() != EquipmentSlot.HAND) return;
         if (!getGame().isStarted()) return;
         if (event.getClickedBlock() == null) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (event.getClickedBlock().getType() != Material.OAK_SIGN) return;
+        if (event.getClickedBlock().getType() != Material.OAK_SIGN && event.getClickedBlock().getType() != Material.OAK_WALL_SIGN) return;
         if (!(event.getClickedBlock().getState() instanceof Sign)) return;
 
 
@@ -85,8 +87,10 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
         Sign sign = (Sign) event.getClickedBlock().getState();
 
 
-        //if (gamePlayer.isImposter()) return;
+
         if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getGasTank())) return;
+
+        //if (gamePlayer.isImposter()) return;
 
         if (gamePlayer.getTaskManager().taskIsCompleted(getParent(gamePlayer))) {
             player.sendMessage("This task was already completed!");
@@ -98,7 +102,7 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
             return;
         }
 
-         if (!gamePlayer.getTaskManager().isActiveStep(step))
+         if (!gamePlayer.getTaskManager().getActiveSteps().contains(step))
          {
              player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
              return;
