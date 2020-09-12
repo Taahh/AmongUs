@@ -51,6 +51,7 @@ public class GameListener implements Listener
         }
         AmongUs.get().getEmergencyMeetingConfirmMenu().openInventory(player);
     }
+
     @EventHandler
     public void onClose(InventoryCloseEvent event)
     {

@@ -3,7 +3,7 @@ version: 1.0
 description: Among Us in MC
 api-version: 1.16
 main: com.taahyt.amongus.AmongUs
-author: Taah
+authors: [Taah, DeJayDev]
 commands:
   join:
     description: "Yes"

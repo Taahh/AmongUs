@@ -60,11 +60,11 @@ public class NMSUtils
                 @Override
                 public void run() {
                     DataWatcher watcher = corpse.getDataWatcher();
-                    watcher.set(DataWatcherRegistry.a.a(16), (byte) 127);
+                    watcher.set(DataWatcherRegistry.a.a(18), (byte) 2);
                     sendPacket(p, new PacketPlayOutEntityMetadata(corpse.getId(), watcher, false));
 
-                    corpse.entitySleep(new BlockPosition(bed.getX(), bed.getY(), bed.getZ()));
-                    corpse.setPose(EntityPose.SLEEPING);
+                    //corpse.entitySleep(new BlockPosition(bed.getX(), bed.getY(), bed.getZ()));
+                    //corpse.setPose(EntityPose.SLEEPING);
                     sendPacket(p, new PacketPlayOutEntityMetadata(corpse.getId(), corpse.getDataWatcher(), false));
                 }
             }.runTaskTimer(AmongUs.get(), 0, 20);
