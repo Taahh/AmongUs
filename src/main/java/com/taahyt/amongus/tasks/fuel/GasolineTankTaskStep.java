@@ -1,9 +1,10 @@
-package com.taahyt.amongus.tasksystem.fuel;
+package com.taahyt.amongus.tasks.fuel;
 
+import com.google.common.collect.Maps;
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
-import com.taahyt.amongus.tasksystem.TaskStep;
+import com.taahyt.amongus.tasks.TaskStep;
 import com.taahyt.amongus.utils.item.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,11 +20,16 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-public class GasolineTankTaskStep extends TaskStep<FuelTask> {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class GasolineTankTaskStep extends TaskStep {
 
     private GasolineTankTaskStep step;
 
-    private Inventory inventory;
+    private Map<AUPlayer, Inventory> inventories = Maps.newHashMap();
+    private Map<AUPlayer, Double> minimumValues = Maps.newHashMap();
 
     private Integer[] fuelSlots = new Integer[]{
             5, 6, 14, 16, 23, 24, 25, 26, 32, 33, 34, 35, 41, 42, 43, 44, 50, 51, 52, 53
@@ -31,17 +37,28 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
 
     private double increment = 16.5;
     private int maxValue = 99;
-    private double minValue = 0;
+
+    private List<AUPlayer> activePlayers = new ArrayList<>(), completedPlayers = new ArrayList<>();
+
 
     public GasolineTankTaskStep() {
         super("Storage: Refill the Gasoline Tank");
         step = this;
-        this.inventory = Bukkit.createInventory(null, 54, "§aGasoline Fuel Task");
     }
 
     @Override
-    public FuelTask getParent(AUPlayer player) {
-        return player.getTaskManager().getFuelTask();
+    public FuelTask getParent() {
+        return AmongUs.get().getTaskManager().getFuelTask();
+    }
+
+    @Override
+    public List<AUPlayer> activePlayers() {
+        return activePlayers;
+    }
+
+    @Override
+    public List<AUPlayer> completedPlayers() {
+        return completedPlayers;
     }
 
     @Override
@@ -51,6 +68,12 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
 
     public void openGUI(Player player)
     {
+
+        AUPlayer auPlayer = getGame().getPlayer(player.getUniqueId());
+
+        inventories.put(auPlayer, Bukkit.createInventory(null, 54, "§aGasoline Fuel Task"));
+
+        Inventory inventory = inventories.get(auPlayer);
 
         for (int i = 0; i <= inventory.getSize() - 1; i++)
         {
@@ -73,7 +96,8 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
     @EventHandler
     public void onInteract(PlayerInteractEvent event)
     {
-        if (event.getHand() != EquipmentSlot.HAND) return;
+        if (event.getHand() == null) return;
+        if (!event.getHand().equals(EquipmentSlot.HAND)) return;
         if (!getGame().isStarted()) return;
         if (event.getClickedBlock() == null) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -92,29 +116,34 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
 
         //if (gamePlayer.isImposter()) return;
 
-        if (gamePlayer.getTaskManager().taskIsCompleted(getParent(gamePlayer))) {
+        if (AmongUs.get().getTaskManager().taskIsCompleted(getParent(), gamePlayer)) {
             player.sendMessage("This task was already completed!");
             return;
         }
-        if (gamePlayer.getTaskManager().stepIsCompleted(getParent(gamePlayer), step))
+        if (AmongUs.get().getTaskManager().stepIsCompleted(this, gamePlayer))
         {
             player.sendMessage("This step was already completed!");
             return;
         }
 
-         if (!gamePlayer.getTaskManager().getActiveSteps().contains(step))
+         if (!AmongUs.get().getTaskManager().isActiveStep(this, gamePlayer))
          {
-             player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
-             return;
+            player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
+            return;
          }
-        openGUI(player);
+         openGUI(player);
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent event)
     {
         if (event.getClickedInventory() == null) return;
-        if (event.getClickedInventory().hashCode() != this.inventory.hashCode())
+
+        if (!inventories.containsKey(getGame().getPlayer(event.getWhoClicked().getUniqueId()))) return;
+
+        Inventory inventory = inventories.get(getGame().getPlayer(event.getWhoClicked().getUniqueId()));
+
+        if (event.getClickedInventory().hashCode() != inventory.hashCode())
         {
             return;
         }
@@ -129,7 +158,9 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
         event.setCancelled(true);
         if (event.getCurrentItem().getType() == Material.RED_STAINED_GLASS_PANE)
         {
-            minValue+=increment;
+            AUPlayer player = getGame().getPlayer(event.getWhoClicked().getUniqueId());
+            minimumValues.put(player, (minimumValues.containsKey(player) ? minimumValues.get(player) + increment : increment));
+            double minValue = minimumValues.get(player);
             if (minValue == 16.5)
             {
                 setSlots(inventory, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setDisplayName("§aFilled Tank").build(), 50, 51, 52, 53);
@@ -153,12 +184,13 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
             else if (minValue == maxValue)
             {
                 setSlots(inventory, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).setDisplayName("§aFilled Tank").build(), 5, 6);
-                AUPlayer player = getGame().getPlayer(event.getWhoClicked().getUniqueId());
-                player.getTaskManager().addToCompletedSteps(getParent(player), step);
-                player.getTaskManager().getActiveSteps().remove(step);
+                AmongUs.get().getTaskManager().addToCompletedSteps(step, player);
+                AmongUs.get().getTaskManager().addToCompletedTasks(getParent(), player);
+                activePlayers.remove(player);
                 player.getBukkitPlayer().closeInventory();
                 player.getBukkitPlayer().setItemOnCursor(new ItemStack(Material.AIR));
-                event.getWhoClicked().sendMessage(ChatColor.GREEN + "Gas Tank Refilled (Fuel Task - " + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
+                event.getWhoClicked().sendMessage(ChatColor.GREEN + "Gas Tank Refilled (Fuel Task - " + getParent().getCompletedSteps(player).size() + "/" + getParent().getSteps().size() + ")");
+                inventories.remove(player);
             }
         }
 
@@ -167,13 +199,18 @@ public class GasolineTankTaskStep extends TaskStep<FuelTask> {
     @EventHandler
     public void onClose(InventoryCloseEvent event)
     {
+        if (!inventories.containsKey(getGame().getPlayer(event.getPlayer().getUniqueId()))) return;
+
+        Inventory inventory = inventories.get(getGame().getPlayer(event.getPlayer().getUniqueId()));
         if (event.getInventory().hashCode() != inventory.hashCode()) return;
 
         AUPlayer player = getGame().getPlayer(event.getPlayer().getUniqueId());
-        if (player.getTaskManager().stepIsCompleted(getParent(player), this)) return;
-        if (player.getTaskManager().taskIsCompleted(getParent(player))) return;
+        if (AmongUs.get().getTaskManager().stepIsCompleted(step, player)) return;
+        if (AmongUs.get().getTaskManager().taskIsCompleted(getParent(), player)) return;
         event.getPlayer().setItemOnCursor(new ItemBuilder(Material.AIR).build());
-        minValue = 0;
+        minimumValues.remove(player);
+        inventories.remove(player);
+        inventories.remove(player);
     }
 
     private void setSlots(Inventory inv, ItemStack item, Integer... slots)

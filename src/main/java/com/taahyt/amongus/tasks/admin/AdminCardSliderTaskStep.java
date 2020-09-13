@@ -1,9 +1,10 @@
-package com.taahyt.amongus.tasksystem.admin;
+package com.taahyt.amongus.tasks.admin;
 
+import com.google.common.collect.Maps;
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
-import com.taahyt.amongus.tasksystem.TaskStep;
+import com.taahyt.amongus.tasks.TaskStep;
 import com.taahyt.amongus.utils.item.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,24 +19,39 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
-public class AdminCardSliderTaskStep extends TaskStep<AdminCardTask>
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+public class AdminCardSliderTaskStep extends TaskStep
 {
 
-    private AdminCardSliderTaskStep step;
+    private Map<AUPlayer, Inventory> inventories = Maps.newHashMap();
 
-    private Inventory inventory;
+
+    private List<AUPlayer> activePlayers = new ArrayList<>(), completedPlayers = new ArrayList<>();
 
     public AdminCardSliderTaskStep()
     {
         super("Admin: Slide the Card to gain access to the Systems");
-        step = this;
-        this.inventory = Bukkit.createInventory(null, 27, "§aAdmin Card (Slide)");
     }
 
     @Override
-    public AdminCardTask getParent(AUPlayer player) {
-        return player.getTaskManager().getAdminCardTask();
+    public List<AUPlayer> activePlayers() {
+        return activePlayers;
+    }
+
+    @Override
+    public List<AUPlayer> completedPlayers() {
+        return completedPlayers;
+    }
+
+    @Override
+    public AdminCardTask getParent() {
+        return AmongUs.get().getTaskManager().getAdminCardTask();
     }
 
     @Override
@@ -45,6 +61,10 @@ public class AdminCardSliderTaskStep extends TaskStep<AdminCardTask>
 
     public void openGUI(Player player)
     {
+
+        AUPlayer auPlayer = getGame().getPlayer(player.getUniqueId());
+        inventories.put(auPlayer, Bukkit.createInventory(null, 27, "§aAdmin Card (Slide)"));
+        Inventory inventory = inventories.get(auPlayer);
 
         for (int i = 0; i <= inventory.getSize() - 1; i++)
         {
@@ -60,10 +80,11 @@ public class AdminCardSliderTaskStep extends TaskStep<AdminCardTask>
         player.openInventory(inventory);
     }
 
-     @EventHandler
+    @EventHandler
     public void onInteract(PlayerInteractEvent event)
     {
-        if (event.getHand() != EquipmentSlot.HAND) return;
+        if (event.getHand() == null) return;
+        if (!event.getHand().equals(EquipmentSlot.HAND)) return;
         if (!getGame().isStarted()) return;
         if (event.getClickedBlock() == null) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -79,31 +100,33 @@ public class AdminCardSliderTaskStep extends TaskStep<AdminCardTask>
 
         if (!sign.getLocation().equals(AmongUs.get().getGame().getScanner().getAdminCardSlider())) return;
 
+
         //if (gamePlayer.isImposter()) return;
 
-        if (gamePlayer.getTaskManager().taskIsCompleted(getParent(gamePlayer))) {
+        if (AmongUs.get().getTaskManager().taskIsCompleted(getParent(), gamePlayer)) {
             player.sendMessage("This task was already completed!");
             return;
         }
-        if (gamePlayer.getTaskManager().stepIsCompleted(getParent(gamePlayer), step))
+        if (AmongUs.get().getTaskManager().stepIsCompleted(this, gamePlayer))
         {
             player.sendMessage("This step was already completed!");
             return;
         }
 
-         if (!gamePlayer.getTaskManager().getActiveSteps().contains(step))
-        {
+         if (!AmongUs.get().getTaskManager().isActiveStep(this, gamePlayer))
+         {
             player.sendMessage("Make sure you've done the other steps before proceeding to this task.");
             return;
-        }
-        openGUI(player);
+         }
+         openGUI(player);
     }
 
     @EventHandler
     public void onClick(InventoryClickEvent event)
     {
         if (event.getClickedInventory() == null) return;
-        if (event.getClickedInventory().hashCode() != this.inventory.hashCode())
+        if (!inventories.containsKey(getGame().getPlayer(event.getWhoClicked().getUniqueId()))) return;
+        if (event.getClickedInventory().hashCode() != inventories.get(getGame().getPlayer(event.getWhoClicked().getUniqueId())).hashCode())
         {
             return;
         }
@@ -127,23 +150,26 @@ public class AdminCardSliderTaskStep extends TaskStep<AdminCardTask>
 
         event.getWhoClicked().setItemOnCursor(new ItemStack(Material.AIR));
         AUPlayer player = getGame().getPlayer(event.getWhoClicked().getUniqueId());
-        player.getTaskManager().addToCompletedSteps(getParent(player), step);
-        player.getTaskManager().addToCompletedTasks(getParent(player));
-        player.getTaskManager().getActiveSteps().remove(step);
+        AmongUs.get().getTaskManager().addToCompletedSteps(this, player);
+        AmongUs.get().getTaskManager().addToCompletedTasks(getParent(), player);
+        activePlayers.remove(player);
         player.getBukkitPlayer().closeInventory();
         player.getBukkitPlayer().setItemOnCursor(new ItemStack(Material.AIR));
-        event.getWhoClicked().sendMessage(ChatColor.GREEN + "Access to Admin Console Granted (Admin Card Task - " + getParent(player).getCompletedSteps().size() + "/" + getParent(player).getSteps().size() + ")");
+        event.getWhoClicked().sendMessage(ChatColor.GREEN + "Access to Admin Console Granted (Admin Card Task - " + getParent().getCompletedSteps(player).size() + "/" + getParent().getSteps().size() + ")");
+        inventories.remove(player);
     }
 
     @EventHandler
     public void onClose(InventoryCloseEvent event)
     {
-        if (event.getInventory().hashCode() != inventory.hashCode()) return;
+        if (!inventories.containsKey(getGame().getPlayer(event.getPlayer().getUniqueId()))) return;
 
+        if (event.getInventory().hashCode() != inventories.get(getGame().getPlayer(event.getPlayer().getUniqueId())).hashCode()) return;
         AUPlayer player = getGame().getPlayer(event.getPlayer().getUniqueId());
-        if (player.getTaskManager().stepIsCompleted(getParent(player), this)) return;
-        if (player.getTaskManager().taskIsCompleted(getParent(player))) return;
+        if (AmongUs.get().getTaskManager().stepIsCompleted(this, player)) return;
+        if (AmongUs.get().getTaskManager().taskIsCompleted(getParent(), player)) return;
         event.getPlayer().setItemOnCursor(new ItemBuilder(Material.AIR).build());
+        inventories.remove(player);
     }
 
 }

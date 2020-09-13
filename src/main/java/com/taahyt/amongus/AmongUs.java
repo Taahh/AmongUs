@@ -7,6 +7,8 @@ import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.menus.AnimatedMenuTest;
 import com.taahyt.amongus.menus.EmergencyMeetingConfirmMenu;
 import com.taahyt.amongus.menus.EmergencyMeetingMenu;
+import com.taahyt.amongus.tasks.manager.TaskManager;
+import com.taahyt.amongus.utils.packets.PacketInjector;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,12 +30,21 @@ public class AmongUs extends JavaPlugin
     @Getter
     private KitManager kitManager;
 
+    @Getter
+    private PacketInjector injector;
+
+    @Getter
+    private TaskManager taskManager;
+
     @Override
     public void onEnable()
     {
         plugin = this;
 
         game = new AUGame();
+
+        this.injector = new PacketInjector();
+        this.taskManager = new TaskManager();
 
         this.kitManager = new KitManager();
 

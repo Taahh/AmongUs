@@ -54,12 +54,17 @@ public class LobbyListener implements Listener
         player.getInventory().setLeggings(kit.getArmorContents()[1]);
         player.getInventory().setBoots(kit.getArmorContents()[2]);
 
+        AmongUs.get().getInjector().inject(player);
+
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event)
     {
         Player player = event.getPlayer();
+
+        AmongUs.get().getInjector().eject(player);
+
         AUPlayer gamePlayer = AmongUs.get().getGame().getPlayer(player.getUniqueId());
         AmongUs.get().getGame().getPlayers().remove(gamePlayer);
         AmongUs.get().getKitManager().getKits().add(gamePlayer.getKitColor()); //add back the kit to the pool

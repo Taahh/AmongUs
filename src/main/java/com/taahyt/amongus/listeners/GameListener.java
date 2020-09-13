@@ -13,13 +13,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerAnimationType;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
@@ -128,7 +126,7 @@ public class GameListener implements Listener
         new BukkitRunnable() {
             @Override
             public void run() {
-                NMSUtils.spawnCorpse(entity.getBukkitPlayer(), location, (Collection<Player>) Bukkit.getOnlinePlayers());
+                AmongUs.get().getGame().getPlayers().stream().map(AUPlayer::getBukkitPlayer).forEach(player -> NMSUtils.secondSecondCorpse(entity.getBukkitPlayer(), location, player));
             }
         }.runTaskLater(AmongUs.get(), 9);
 
@@ -143,11 +141,12 @@ public class GameListener implements Listener
                 }
 
                 killCooldown.put(damager.getUuid(), killCooldown.get(damager.getUuid()) - 1);
-                damager.getBukkitPlayer().getInventory().setItem(EquipmentSlot.HAND, new ItemBuilder(Material.DIAMOND_SWORD).setDisplayName("§4Murder Weapon (" + killCooldown.get(damager.getUuid()) + ")").build());
+                damager.getBukkitPlayer().getInventory().setItem(0, new ItemBuilder(Material.DIAMOND_SWORD).setDisplayName("§4Murder Weapon (" + killCooldown.get(damager.getUuid()) + ")").build());
 
                 if (killCooldown.get(damager.getUuid()) == 0)
                 {
-                    damager.getBukkitPlayer().getInventory().setItem(EquipmentSlot.HAND, new ItemBuilder(Material.DIAMOND_SWORD).setDisplayName("§4Murder Weapon").build());
+                    damager.getBukkitPlayer().getInventory().setItem(0, new ItemBuilder(Material.DIAMOND_SWORD).setDisplayName("§4Murder Weapon").build());
+                    killCooldown.remove(damager.getUuid());
                     this.cancel();
                 }
 
@@ -175,6 +174,18 @@ public class GameListener implements Listener
                 return;
             }
         }
+    }
+
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event)
+    {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onItemDrop(PlayerDropItemEvent event)
+    {
+        event.setCancelled(true);
     }
 
 }

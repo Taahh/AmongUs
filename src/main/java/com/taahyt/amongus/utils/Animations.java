@@ -1,12 +1,14 @@
 package com.taahyt.amongus.utils;
 
 import com.taahyt.amongus.AmongUs;
+import com.taahyt.amongus.game.player.AUPlayer;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -44,6 +46,43 @@ public class Animations
                 if (i == endingSlot)
                 {
                     atomicTask.set(null);
+                    future.complete("Completed " + this.getTaskId());
+                    this.cancel();
+                }
+
+            }
+        }.runTaskTimer(AmongUs.get(), 0, 10));
+        return future;
+    }
+
+    public static CompletableFuture<String> animate(Map<ItemStack, Integer> items, ItemStack item, int endingSlot, Inventory inventory, List<BukkitTask> tasksList, int index, boolean increasing)
+    {
+        CompletableFuture<String> future = new CompletableFuture<>();
+
+        tasksList.set(index, new BukkitRunnable() {
+            int i =  items.get(item);
+            @Override
+            public void run()
+            {
+                if (items.isEmpty())
+                {
+                    this.cancel();
+                    return;
+                }
+
+                if (increasing)
+                {
+                    i++;
+                } else {
+                    i--;
+                }
+
+                inventory.setItem(items.get(item), new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
+                items.put(item, i);
+                inventory.setItem(items.get(item), item);
+                if (i == endingSlot)
+                {
+                    tasksList.set(index, null);
                     future.complete("Completed " + this.getTaskId());
                     this.cancel();
                 }

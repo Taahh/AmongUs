@@ -1,10 +1,12 @@
-package com.taahyt.amongus.tasksystem;
+package com.taahyt.amongus.tasks;
 
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
 import org.bukkit.event.Listener;
 
-public abstract class TaskStep<T extends Task> implements Listener
+import java.util.List;
+
+public abstract class TaskStep implements Listener
 {
 
     private String description;
@@ -13,7 +15,13 @@ public abstract class TaskStep<T extends Task> implements Listener
         this.description = description;
     }
 
-    public abstract T getParent(AUPlayer player);
+
+    /* Gets all the Players that have this Step Active */
+    public abstract List<AUPlayer> activePlayers();
+
+    public abstract List<AUPlayer> completedPlayers();
+
+    public abstract Task getParent();
 
     public abstract AUGame getGame();
 

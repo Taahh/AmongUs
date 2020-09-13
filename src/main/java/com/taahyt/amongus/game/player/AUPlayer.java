@@ -1,7 +1,6 @@
 package com.taahyt.amongus.game.player;
 
 import com.taahyt.amongus.customization.Kit;
-import com.taahyt.amongus.tasksystem.manager.TaskManager;
 import com.taahyt.amongus.utils.scoreboard.AUScoreboard;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,9 +26,10 @@ public class AUPlayer
 
     private AUScoreboard scoreboard;
 
-    private TaskManager taskManager;
-
     private Kit kitColor;
+
+    private boolean scanning;
+    private boolean scanned;
 
     public AUPlayer(UUID uuid)
     {
@@ -37,9 +37,10 @@ public class AUPlayer
         this.imposter = false;
         this.kills = 0;
 
-        this.taskManager = new TaskManager(this);
-
         this.kitColor = null;
+
+        this.scanning = false;
+        this.scanned = false;
 
         this.voted = false;
         this.scoreboard = new AUScoreboard("AMONG US");

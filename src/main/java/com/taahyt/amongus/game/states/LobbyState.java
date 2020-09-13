@@ -3,8 +3,6 @@ package com.taahyt.amongus.game.states;
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
 import com.taahyt.amongus.game.player.AUPlayer;
-import com.taahyt.amongus.tasksystem.TaskStep;
-import com.taahyt.amongus.utils.GlowAPI;
 import com.taahyt.amongus.utils.item.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -69,13 +67,12 @@ public class LobbyState extends BukkitRunnable
 
             game.getAlivePlayers().get(ThreadLocalRandom.current().nextInt(game.getAlivePlayers().size())).setImposter(true);
 
-            game.getAlivePlayers().stream().filter(AUPlayer::isImposter).forEach(p -> p.getBukkitPlayer().getInventory().setItem(EquipmentSlot.HAND, new ItemBuilder(Material.DIAMOND_SWORD).setDisplayName("§4Murder Weapon").build()));
+            game.getAlivePlayers().stream().filter(AUPlayer::isImposter).forEach(p -> p.getBukkitPlayer().getInventory().setItem(0, new ItemBuilder(Material.DIAMOND_SWORD).setDisplayName("§4Murder Weapon").build()));
 
             game.getAlivePlayers().forEach(player -> player.getScoreboard().set(0, "ROLE: " + (player.isImposter() ? "IMPOSTER" : "CREWMATE")));
 
             game.getAlivePlayers().forEach(player -> {
-                player.getTaskManager().getActiveSteps().addAll(player.getTaskManager().getTasks().stream().map(task -> (TaskStep) task.getSteps().get(0)).collect(Collectors.toList()));
-
+                AmongUs.get().getTaskManager().assignDefaultSteps(player);
             });
 
             game.getAlivePlayers().forEach(player -> {

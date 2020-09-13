@@ -1,6 +1,7 @@
 package com.taahyt.amongus.game.states;
 
 
+import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.AUGame;
 import lombok.Getter;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -19,7 +20,7 @@ public class PermState extends BukkitRunnable {
     public void run()
     {
         game.getPlayers().forEach(player -> {
-            player.getScoreboard().set(2, "Tasks Completed: " + player.getTaskManager().getCompletedTasks().size() + "/" + player.getTaskManager().getTasks().size());
+            player.getScoreboard().set(2, "Tasks Completed: " + AmongUs.get().getTaskManager().getTasksCompleted(player).size() + "/" + AmongUs.get().getTaskManager().getTasks().size());
         });
 
         if (game.getAlivePlayers().size() == 2)

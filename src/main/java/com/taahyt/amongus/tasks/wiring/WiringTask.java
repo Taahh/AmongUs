@@ -1,16 +1,19 @@
-package com.taahyt.amongus.tasksystem.wiring;
+package com.taahyt.amongus.tasks.wiring;
 
 import com.taahyt.amongus.AmongUs;
-import com.taahyt.amongus.tasksystem.Task;
-import com.taahyt.amongus.tasksystem.TaskStep;
+import com.taahyt.amongus.game.player.AUPlayer;
+import com.taahyt.amongus.tasks.Task;
+import com.taahyt.amongus.tasks.TaskStep;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WiringTask extends Task
+public class WiringTask implements Task
 {
 
-    private List<TaskStep> completedStep = new ArrayList<>(), steps = new ArrayList<>();
+    private List<TaskStep> steps = new ArrayList<>();
+    private List<AUPlayer> completedPlayers = new ArrayList<>();
+
 
     private ElectricalWiringTaskStep electricalWiringTaskStep;
     private CafeteriaWiringTaskStep cafeteriaWiringTaskStep;
@@ -28,13 +31,25 @@ public class WiringTask extends Task
     }
 
     @Override
+    public List<AUPlayer> completedPlayers() {
+        return completedPlayers;
+    }
+
+    @Override
     public List<TaskStep> getSteps() {
         return steps;
     }
 
     @Override
-    public List<TaskStep> getCompletedSteps() {
-        return completedStep;
+    public List<TaskStep> getCompletedSteps(AUPlayer player) {
+        List<TaskStep> completedSteps = new ArrayList<>();
+        steps.forEach(step -> {
+            if (step.completedPlayers().contains(player))
+            {
+                completedSteps.add(step);
+            }
+        });
+        return completedSteps;
     }
 
     @Override
@@ -42,19 +57,4 @@ public class WiringTask extends Task
         return "wiring_task";
     }
 
-    @Override
-    public void completeStep(TaskStep step)
-    {
-        getCompletedSteps().add(step);
-    }
-
-    @Override
-    public WiringTask cloneTask() {
-        try {
-            return (WiringTask) super.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }
