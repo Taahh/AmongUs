@@ -4,9 +4,8 @@ import com.taahyt.amongus.command.JoinCMD;
 import com.taahyt.amongus.command.TasksCMD;
 import com.taahyt.amongus.customization.KitManager;
 import com.taahyt.amongus.game.AUGame;
-import com.taahyt.amongus.menus.AnimatedMenuTest;
-import com.taahyt.amongus.menus.EmergencyMeetingConfirmMenu;
-import com.taahyt.amongus.menus.EmergencyMeetingMenu;
+import com.taahyt.amongus.meeting.ConfirmationMenu;
+import com.taahyt.amongus.meeting.EmergencyMeetingHandler;
 import com.taahyt.amongus.tasks.manager.TaskManager;
 import com.taahyt.amongus.utils.packets.PacketInjector;
 import lombok.Getter;
@@ -19,13 +18,10 @@ public class AmongUs extends JavaPlugin
     private AUGame game;
 
     @Getter
-    private EmergencyMeetingConfirmMenu emergencyMeetingConfirmMenu;
+    private ConfirmationMenu confirmationMenu;
 
     @Getter
-    private EmergencyMeetingMenu emergencyMeetingMenu;
-
-    @Getter
-    private AnimatedMenuTest animatedMenuTest;
+    private EmergencyMeetingHandler emergencyMeetingHandler;
 
     @Getter
     private KitManager kitManager;
@@ -49,17 +45,15 @@ public class AmongUs extends JavaPlugin
         this.kitManager = new KitManager();
 
 
-        this.emergencyMeetingConfirmMenu = new EmergencyMeetingConfirmMenu();
-        this.emergencyMeetingMenu = new EmergencyMeetingMenu();
-        this.animatedMenuTest = new AnimatedMenuTest();
+        this.confirmationMenu = new ConfirmationMenu(game);
+        this.emergencyMeetingHandler = new EmergencyMeetingHandler();
 
 
         getCommand("join").setExecutor(new JoinCMD());
         getCommand("tasks").setExecutor(new TasksCMD());
 
-        getServer().getPluginManager().registerEvents(emergencyMeetingMenu, this);
-        getServer().getPluginManager().registerEvents(emergencyMeetingConfirmMenu, this);
-        getServer().getPluginManager().registerEvents(animatedMenuTest, this);
+        getServer().getPluginManager().registerEvents(emergencyMeetingHandler, this);
+        getServer().getPluginManager().registerEvents(confirmationMenu, this);
     }
 
 

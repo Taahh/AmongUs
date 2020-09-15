@@ -2,6 +2,7 @@ package com.taahyt.amongus.listeners;
 
 import com.taahyt.amongus.AmongUs;
 import com.taahyt.amongus.game.player.AUPlayer;
+import com.taahyt.amongus.renderers.GameMapRenderer;
 import com.taahyt.amongus.utils.NMSUtils;
 import com.taahyt.amongus.utils.item.ItemBuilder;
 import org.bukkit.Bukkit;
@@ -18,9 +19,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
+import org.bukkit.event.server.MapInitializeEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.map.MapView;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Collection;
@@ -47,25 +50,27 @@ public class GameListener implements Listener
             player.sendMessage("The emergency meeting button is currently on cooldown!");
             return;
         }
-        AmongUs.get().getEmergencyMeetingConfirmMenu().openInventory(player);
+
+        if (AmongUs.get().getGame().isInMeeting())
+        {
+            AmongUs.get().getEmergencyMeetingHandler().openInventory(player);
+            return;
+        }
+        AmongUs.get().getConfirmationMenu().openInventory(player);
     }
 
     @EventHandler
-    public void onClose(InventoryCloseEvent event)
+    public void onMoveWhileMeeting(PlayerMoveEvent event)
     {
-        if (!(event.getPlayer() instanceof Player)) return;
-        Inventory inv = event.getPlayer().getOpenInventory().getTopInventory();
-        if (inv.hashCode() != AmongUs.get().getEmergencyMeetingConfirmMenu().getInventory().hashCode() &&
-            inv.hashCode() != AmongUs.get().getEmergencyMeetingMenu().getInventory().hashCode()) return;
-        if (!AmongUs.get().getGame().isVoting() && !AmongUs.get().getGame().isWaitingOnVote()) return;
-        if (AmongUs.get().getGame().isWaitingOnVote() || AmongUs.get().getGame().isVoting())
+        if (event.getFrom().getWorld() == event.getTo().getWorld()
+                && event.getFrom().getBlockX() == event.getTo().getBlockX()
+                && event.getFrom().getBlockZ() == event.getTo().getBlockZ()
+                && event.getFrom().getBlockY() == event.getTo().getBlockY())
+            return;
+
+        if (AmongUs.get().getGame().isInMeeting())
         {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    AmongUs.get().getEmergencyMeetingMenu().openInventory((Player) event.getPlayer());
-                }
-            }.runTaskLater(AmongUs.get(), 2);
+            event.setCancelled(true);
         }
     }
 
@@ -96,7 +101,19 @@ public class GameListener implements Listener
         AUPlayer damager = AmongUs.get().getGame().getPlayer(event.getDamager().getUniqueId());
         AUPlayer entity = AmongUs.get().getGame().getPlayer(event.getEntity().getUniqueId());
 
+        if (AmongUs.get().getGame().isInMeeting())
+        {
+            event.setCancelled(true);
+            return;
+        }
+
         if (!damager.isImposter())
+        {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (entity.isImposter())
         {
             event.setCancelled(true);
             return;
@@ -166,12 +183,10 @@ public class GameListener implements Listener
             if (gamePlayer.isImposter() && killCooldown.containsKey(gamePlayer.getUuid()))
             {
                 event.setCancelled(true);
-                return;
             }
             else if (!gamePlayer.isImposter())
             {
                 event.setCancelled(true);
-                return;
             }
         }
     }
@@ -187,5 +202,4 @@ public class GameListener implements Listener
     {
         event.setCancelled(true);
     }
-
 }

@@ -53,6 +53,11 @@ public class AUGame
     private LobbyListener lobbyListener;
     private GameListener gameListener;
 
+    private int totalMeetings = 2;
+    private int meetingsLeft = 2;
+
+    private boolean inMeeting;
+
     private boolean emergencyCooldown;
 
     private BukkitRunnable currentState;
